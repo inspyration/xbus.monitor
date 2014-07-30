@@ -1,0 +1,32 @@
+redis:
+    image: dockerfile/redis
+postgresql:
+    image: xcgd/postgresql
+    ports:
+        - "54321:5432"
+monitor:
+    build: . 
+    command:
+        - pserve 
+        - /opt/xbus/monitor/development.ini
+    ports:
+        - "6543:6543"
+    links:
+        - postgresql
+initdb:
+    build: .
+    command:
+        - initialize_monitor_db
+        - /opt/xbus/monitor/development.ini
+    links:
+        - postgresql
+broker:
+    build: ../xbus_broker
+    command: /opt/xbus/broker/broker
+    ports:
+        - "4510:4510"
+        - "1984:1984"
+    links:
+        - redis
+        - postgresql
+        - monitor
