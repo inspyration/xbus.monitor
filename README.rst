@@ -19,12 +19,12 @@ Build the dockers using Fig::
 Create the xbus user and database::
 
   $ fig start postgresql
-  $ echo "create user xbus with password 'xbus'; create database xbus with owner = xbus | psql -h 127.0.0.1 -p 54321 -U postgres
+  $ echo "create user xbus with password 'xbus'; create database xbus with owner = xbus" | psql -h 127.0.0.1 -p 54321 -U postgres
   $ fig stop postgresql
 
 Initialize the database (option -d to load the demo data, -c to clear existing tables)::
 
-  $ fig run monitor initialize_monitor_db /opt/xbus/monitor/development.ini
+  $ fig run --rm monitor initialize_monitor_db /opt/xbus/monitor/development.ini
 
 Start XBus::
 

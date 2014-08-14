@@ -4,7 +4,6 @@ from sqlalchemy import (
     Boolean,
     String,
     Text,
-    LargeBinary,
     DateTime,
     Enum,
     ForeignKey,
@@ -23,7 +22,7 @@ from zope.sqlalchemy import ZopeTransactionExtension
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
-EVENT_STATES = ['emit', 'wait', 'exec', 'done', 'fail']
+ENVELOPE_STATES = ['emit', 'wait', 'exec', 'done', 'fail']
 
 
 class Role(Base):
@@ -64,19 +63,31 @@ class Emitter(Base):
 
     __tablename__ = 'emitter'
 
+    profile_fkey = ForeignKey('emitter_profile.id', ondelete='CASCADE')
+
     id = Column(Integer, primary_key=True)
     login = Column(String(length=64), index=True, nullable=False, unique=True)
+    profile_id = Column(Integer, profile_fkey, nullable=False)
     last_emit = Column(DateTime)
 
 
-class EmitterEventTypeRel(Base):
+class EmitterProfile(Base):
 
-    __tablename__ = 'emitter_event_type_rel'
+    __tablename__ = 'emitter_profile'
 
-    emitter_fkey = ForeignKey('emitter.id', ondelete='CASCADE')
+    id = Column(Integer, primary_key=True)
+    name = Column(String(length=64), index=True, nullable=False, unique=True)
+    description = Column(Text)
+
+
+class EmitterProfileEventTypeRel(Base):
+
+    __tablename__ = 'emitter_profile_event_type_rel'
+
+    profile_fkey = ForeignKey('emitter_profile.id', ondelete='CASCADE')
     event_type_fkey = ForeignKey('event_type.id', ondelete='CASCADE')
 
-    emitter_id = Column(Integer, emitter_fkey, primary_key=True)
+    profile_id = Column(Integer, profile_fkey, primary_key=True)
     event_id = Column(Integer, event_type_fkey, primary_key=True)
 
 
@@ -85,29 +96,46 @@ class Envelope(Base):
     __tablename__ = 'envelope'
 
     emitter_fkey = ForeignKey('emitter.id', ondelete='RESTRICT')
-    state_enum = Enum(*EVENT_STATES, name='event_state')
+    state_enum = Enum(*ENVELOPE_STATES, name='envelope_state')
 
-    uuid = Column(LargeBinary(length=16), primary_key=True)
-    emitter_id = Column(Integer, emitter_fkey, primary_key=True)
+    uuid = Column(UUID, primary_key=True)
+    emitter_id = Column(Integer, emitter_fkey, nullable=False)
     state = Column(state_enum, nullable=False)
-    start_date = Column(DateTime, nullable=False)
-    end_date = Column(DateTime)
+    posted_date = Column(DateTime, nullable=False)
+    done_date = Column(DateTime)
 
 
 class Event(Base):
 
     __tablename__ = 'event'
 
-    envelope_fkey = ForeignKey('envelope.uuid', ondelete='RESTRICT')
+    envelope_fkey = ForeignKey('envelope.uuid', ondelete='CASCADE')
+    emitter_fkey = ForeignKey('emitter.id', ondelete='RESTRICT')
     type_fkey = ForeignKey('event_type.id', ondelete='RESTRICT')
-    state_enum = Enum(*EVENT_STATES, name='event_state')
 
-    uuid = Column(LargeBinary(length=16), primary_key=True)
-    envelope_uuid = Column(Integer, envelope_fkey, index=True, nullable=False)
+    uuid = Column(UUID, primary_key=True)
+    envelope_uuid = Column(UUID, envelope_fkey, index=True, nullable=False)
+    emitter_id = Column(Integer, emitter_fkey, nullable=False)
     type_id = Column(Integer, type_fkey, nullable=False)
-    state = Column(state_enum, nullable=False)
-    start_date = Column(DateTime, nullable=False)
-    end_date = Column(DateTime)
+    started_date = Column(DateTime)
+    done_date = Column(DateTime)
+
+
+class EventError(Base):
+
+    __tablename__ = 'event_error'
+
+    envelope_fkey = ForeignKey('envelope.uuid', ondelete='CASCADE')
+    event_fkey = ForeignKey('event.uuid', ondelete='CASCADE')
+    service_fkey = ForeignKey('service.id', ondelete='CASCADE')
+
+    id = Column(Integer, primary_key=True)
+    envelope_uuid = Column(UUID, envelope_fkey, index=True, nullable=False)
+    event_uuid = Column(UUID, event_fkey, nullable=False)
+    service_id = Column(Integer, service_fkey)
+    items = Column(Text)
+    message = Column(Text)
+    error_date = Column(DateTime, nullable=False)
 
 
 class EventType(Base):

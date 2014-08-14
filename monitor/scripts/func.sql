@@ -11,10 +11,11 @@ $BODY$
 DECLARE
 	v_role_id integer;
 BEGIN
+	LOCK role_active IN EXCLUSIVE MODE;
 	SELECT INTO v_role_id id FROM role WHERE role.login = param_login;
 	IF v_role_id IS NULL THEN RETURN 'err_login';
 	END IF;
-	LOCK role_active IN EXCLUSIVE MODE;
+	UPDATE role SET last_logged = localtimestamp where id = v_role_id;
 	IF (SELECT count(*) FROM role_active where role_active.role_id = v_role_id) > 0 THEN
 		UPDATE role_active SET zmqid = param_zmqid, ready = true, last_act_date = localtimestamp WHERE role_active.role_id = v_role_id;
 	ELSE
@@ -30,10 +31,10 @@ $BODY$
 DECLARE
 	v_role_id integer;
 BEGIN
+	LOCK role_active IN EXCLUSIVE MODE;
 	SELECT INTO v_role_id id FROM role WHERE role.login = param_login;
 	IF v_role_id IS NULL THEN RETURN 'err_login';
 	END IF;
-	LOCK role_active IN EXCLUSIVE MODE;
 	IF (SELECT count(*) FROM role_active where role_active.role_id = v_role_id) > 0 THEN
 		DELETE FROM role_active WHERE role_active.role_id = v_role_id;
 		RETURN 'ack_sign_out';
@@ -48,10 +49,10 @@ $BODY$
 DECLARE
 	v_role_id integer;
 BEGIN
+	LOCK role_active IN EXCLUSIVE MODE;
 	SELECT INTO v_role_id id FROM role WHERE role.login = param_login;
 	IF v_role_id IS NULL THEN RETURN 'err_login';
 	END IF;
-	LOCK role_active IN EXCLUSIVE MODE;
 	IF (SELECT zmqid FROM role_active where role_active.role_id = v_role_id) = param_zmqid THEN
 		UPDATE role_active SET ready = true WHERE role_active.role_id = v_role_id;
 		RETURN 'ack_ready';
@@ -62,9 +63,11 @@ END;
 $BODY$
 LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION xbusrole_reset() RETURNS void AS
+CREATE OR REPLACE FUNCTION xbusbroker_reset() RETURNS void AS
 $BODY$
 BEGIN
+	LOCK role_active IN EXCLUSIVE MODE;
+	LOCK envelope IN EXCLUSIVE MODE;
 	DELETE FROM role_active
 	WHERE role_id IN (
 		SELECT role_active.role_id FROM role_active
@@ -73,6 +76,7 @@ BEGIN
 		WHERE NOT service.consumer
 	);
 	UPDATE role_active SET zmqid = NULL, ready = false;
+	UPDATE envelope SET state = 'wait' WHERE state = 'exec';
 END;
 $BODY$
 LANGUAGE plpgsql;
@@ -144,6 +148,51 @@ BEGIN
 	WHERE event_type.name = param_event_type
 	GROUP BY event_node.id
 	ORDER BY start desc;
+	RETURN;
+END
+$BODY$
+LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION xbusenvelope_new_envelope(param_login character varying, param_env_uuid uuid) RETURNS int AS
+$BODY$
+DECLARE
+	v_emitter_id integer;
+BEGIN
+	LOCK emitter IN EXCLUSIVE MODE;
+	SELECT INTO v_emitter_id id FROM emitter WHERE emitter.login = param_login;
+	IF v_emitter_id IS NULL THEN RAISE EXCEPTION 'Invalid emitter login: %%', param_login;
+	END IF;
+	UPDATE emitter SET last_emit = localtimestamp where emitter.id = v_emitter_id;
+    INSERT INTO envelope (uuid, emitter_id, state, posted_date) VALUES (param_env_uuid, v_emitter_id, 'emit', localtimestamp);
+    RETURN v_emitter_id;
+END
+$BODY$
+LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION xbusenvelope_new_event(param_evt_type character varying, param_emitter_id int, param_env_uuid uuid, param_evt_uuid uuid) RETURNS void AS
+$BODY$
+DECLARE
+	v_event_type_id integer;
+BEGIN
+	SELECT INTO v_event_type_id event_type.id
+	FROM emitter
+	JOIN emitter_profile_event_type_rel ON emitter.profile_id = emitter_profile_event_type_rel.profile_id
+	JOIN event_type ON emitter_profile_event_type_rel.event_id = event_type.id
+	WHERE emitter.id = param_emitter_id AND event_type.name = param_evt_type;
+	IF v_event_type_id IS NULL THEN RAISE EXCEPTION 'Login %% is not allowed to post event of type %%', param_login, param_evt_type;
+	END IF;
+    INSERT INTO event (uuid, envelope_uuid, type_id, emitter_id, started_date) VALUES (param_evt_uuid, param_env_uuid, v_event_type_id, param_emitter_id, localtimestamp);
+    RETURN;
+END
+$BODY$
+LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION xbusenvelope_fail(param_env_uuid uuid, param_evt_uuid uuid, param_service_id int, param_items text, param_message text) RETURNS void AS
+$BODY$
+BEGIN
+	LOCK envelope IN EXCLUSIVE MODE;
+	UPDATE envelope SET state = 'fail' WHERE uuid = param_env_uuid;
+	INSERT INTO event_error (envelope_uuid, event_uuid, service_id, items, message, error_date) VALUES (param_env_uuid, param_evt_uuid, param_service_id, param_items, param_message, localtimestamp);
 	RETURN;
 END
 $BODY$
