@@ -35,7 +35,7 @@ BEGIN
 	SELECT INTO v_role_id id FROM role WHERE role.login = param_login;
 	IF v_role_id IS NULL THEN RETURN 'err_login';
 	END IF;
-	IF (SELECT count(*) FROM role_active where role_active.role_id = v_role_id) > 0 THEN
+	IF (SELECT zmqid FROM role_active where role_active.role_id = v_role_id) = param_zmqid THEN
 		DELETE FROM role_active WHERE role_active.role_id = v_role_id;
 		RETURN 'ack_sign_out';
 	END IF;
@@ -58,6 +58,25 @@ BEGIN
 		RETURN 'ack_ready';
 	ELSE
 		RETURN 'err_ready';
+	END IF;
+END;
+$BODY$
+LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION xbusrole_unavailable(param_login character varying, param_zmqid integer) RETURNS character varying AS
+$BODY$
+DECLARE
+	v_role_id integer;
+BEGIN
+	LOCK role_active IN EXCLUSIVE MODE;
+	SELECT INTO v_role_id id FROM role WHERE role.login = param_login;
+	IF v_role_id IS NULL THEN RETURN 'err_login';
+	END IF;
+	IF (SELECT zmqid FROM role_active where role_active.role_id = v_role_id) = param_zmqid THEN
+		UPDATE role_active SET ready = false WHERE role_active.role_id = v_role_id;
+		RETURN 'ack_unavailable';
+	ELSE
+		RETURN 'err_unavailable';
 	END IF;
 END;
 $BODY$
