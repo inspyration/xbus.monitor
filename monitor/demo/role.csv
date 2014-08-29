@@ -37,3 +37,4 @@ id,login,service_id
 36,calc_direct:2,3
 37,calc_direct:3,3
 38,calc_direct:4,3
+39,new_invoice_consumer:1,4
