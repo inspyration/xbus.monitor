@@ -1,19 +1,19 @@
 from pyramid.view import view_config
 from xml.etree import ElementTree
 
-from .models.models import DBSession
-#from .models.models import Role
-from .models.models import Service
-#from .models.models import Emitter
-from .models.models import EventType
-#from .models.models import EventNodeRel
-#from .models.models import EmitterProfile
-#from .models.models import EmitterProfileEventTypeRel
-#from .models.models import EventNode
+from ..models.models import DBSession
+#from ..models.models import Role
+from ..models.models import Service
+#from ..models.models import Emitter
+from ..models.models import EventType
+#from ..models.models import EventNodeRel
+#from ..models.models import EmitterProfile
+#from ..models.models import EmitterProfileEventTypeRel
+#from ..models.models import EventNode
 
 
-@view_config(route_name='home', renderer='templates/mytemplate.pt')
-def my_view(request):
+@view_config(route_name='home', renderer='templates/home.pt')
+def home(request):
     return {'project': 'monitor'}
 
 
