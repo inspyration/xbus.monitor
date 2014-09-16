@@ -8,7 +8,9 @@ monitor:
     build: xbus_monitor
     command:
         - pserve 
-        - /opt/xbus/monitor/development.ini
+        - /opt/xbus/monitor/etc/development.ini
+    volumes:
+         - etc/:/opt/xbus/monitor/etc
     ports:
         - "6543:6543"
     links:

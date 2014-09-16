@@ -9,6 +9,8 @@ Clone xbus_monitor and xbus_broker in the same directory. Move the fig.yml file 
   $ hg clone ssh://hg@bitbucket.org/xcg/xbus_monitor
   $ hg clone ssh://hg@bitbucket.org/xcg/xbus_broker
   $ ln -s xbus_monitor/fig.yml .
+  $ mkdir etc
+  $ cp xbus-monitor/production.ini etc/
 
 Create a virtualenv with fig installed::
 
@@ -30,7 +32,8 @@ Create the xbus user and database::
   $ exit
   $ docker stop xbus_postgresql_run_1
 
-Initialize the database::
+
+Configure the monitor by editing your config file in `etc/production.ini` and finally initialize the database::
 
   $ fig run --rm monitor initialize_monitor_db /opt/xbus/monitor/development.ini
 
