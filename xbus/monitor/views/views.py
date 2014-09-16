@@ -1,4 +1,5 @@
 from pyramid.view import view_config
+from pyramid.renderers import get_renderer
 from xml.etree import ElementTree
 
 from ..models.models import DBSession
@@ -14,7 +15,15 @@ from ..models.models import EventType
 
 @view_config(route_name='home', renderer='../templates/home.pt')
 def home(request):
-    return {'project': 'monitor'}
+    return {
+        'context_url': request.path_qs,
+        'project': 'monitor',
+        'view_title': 'Xbus Monitor Home',
+        'macros': (
+            get_renderer('xbus.monitor:templates/base.pt')
+            .implementation().macros
+        ),
+    }
 
 
 @view_config(route_name='xml_config', request_method='GET',
