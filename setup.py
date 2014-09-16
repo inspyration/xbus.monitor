@@ -20,9 +20,9 @@ requires = [
     'zope.sqlalchemy',
 ]
 
-setup(name='monitor',
+setup(name='xbus.monitor',
       version='0.0',
-      description='monitor',
+      description='XBus Monitor',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
         "Programming Language :: Python",
@@ -37,12 +37,12 @@ setup(name='monitor',
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
-      test_suite='monitor',
+      test_suite='xbus.monitor',
       install_requires=requires,
       entry_points="""\
       [paste.app_factory]
-      main = monitor:main
+      main = xbus.monitor:main
       [console_scripts]
-      initialize_monitor_db = monitor.scripts.initializedb:main
+      initialize_monitor_db = xbus.monitor.scripts.initializedb:main
       """,
       )
