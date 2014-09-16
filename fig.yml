@@ -6,9 +6,6 @@ postgresql:
 
 monitor:
     build: xbus_monitor
-    command:
-        - pserve 
-        - /opt/xbus/monitor/etc/development.ini
     volumes:
          - etc/:/opt/xbus/monitor/etc
     ports:

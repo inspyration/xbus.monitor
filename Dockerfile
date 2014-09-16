@@ -9,4 +9,4 @@ RUN cd /opt/xbus/monitor && python /opt/xbus/monitor/setup.py install
 
 EXPOSE 6543 
 
-CMD ["pserve","/opt/xbus/monitor/etc/development.ini"]
+CMD ["pserve","/opt/xbus/monitor/etc/production.ini"]

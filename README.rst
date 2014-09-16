@@ -10,7 +10,7 @@ Clone xbus_monitor and xbus_broker in the same directory. Move the fig.yml file 
   $ hg clone ssh://hg@bitbucket.org/xcg/xbus_broker
   $ ln -s xbus_monitor/fig.yml .
   $ mkdir etc
-  $ cp xbus-monitor/production.ini.sample etc/production.ini
+  $ cp xbus_monitor/production.ini.sample etc/production.ini
 
 Create a virtualenv with fig installed::
 
@@ -26,11 +26,11 @@ Build the dockers using Fig::
 
 Create the xbus user and database::
 
-  $ fig run -d postgresql
-  $ docker run -i -t --link xbus_postgresql_run_1:db xcgd/postgresql /bin/bash
+  $ docker run -d --name="xbus_postgresql_1" xcgd/postgresql
+  $ docker run --rm -i -t --link xbus_postgresql_1:db xcgd/postgresql /bin/bash
   $ echo "create user xbus with password 'xbus'; create database xbus with owner = xbus" | psql -h db -p 5432 -U postgres
   $ exit
-  $ docker stop xbus_postgresql_run_1
+  $ docker stop xbus_postgresql_1
 
 
 initialize the database::
