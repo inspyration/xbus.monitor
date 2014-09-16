@@ -1,0 +1,5 @@
+id,name,consumer
+1,calc_calculator,f
+2,calc_consumer,t
+3,calc_direct,t
+4,new_invoice_consumer,t
