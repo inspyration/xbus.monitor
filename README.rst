@@ -8,7 +8,13 @@ Clone xbus_monitor and xbus_broker in the same directory. Move the fig.yml file 
 
   $ hg clone ssh://hg@bitbucket.org/xcg/xbus_monitor
   $ hg clone ssh://hg@bitbucket.org/xcg/xbus_broker
-  $ mv xbus_monitor/fig.yml .
+  $ ln -s xbus_monitor/fig.yml .
+
+Create a virtualenv with fig installed::
+
+  $ virtualenv --no-site-packages --python=python2.7 env-fig
+  $ pip install --upgrade fig
+  $ source env-fig/bin/activate
 
 Follow the "Install from sources" instructions in the xbus_broker README.rst file in order to compile the broker executable.
 
@@ -18,11 +24,13 @@ Build the dockers using Fig::
 
 Create the xbus user and database::
 
-  $ fig start postgresql
-  $ echo "create user xbus with password 'xbus'; create database xbus with owner = xbus" | psql -h 127.0.0.1 -p 54321 -U postgres
-  $ fig stop postgresql
+  $ fig run -d postgresql
+  $ docker run -i -t --link xbus_postgresql_run_1:db xcgd/postgresql /bin/bash
+  $ echo "create user xbus with password 'xbus'; create database xbus with owner = xbus" | psql -h db -p 5432 -U postgres
+  $ exit
+  $ docker stop xbus_postgresql_run_1
 
-Initialize the database (option -d to load the demo data, -c to clear existing tables)::
+Initialize the database::
 
   $ fig run --rm monitor initialize_monitor_db /opt/xbus/monitor/development.ini
 
