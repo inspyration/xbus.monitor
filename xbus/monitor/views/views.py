@@ -1,10 +1,10 @@
 from pyramid.view import view_config
 from pyramid.renderers import get_renderer
-from xml.etree import ElementTree
 
+from ..utils.xml_config import load_config
 from ..models.models import DBSession
 #from ..models.models import Role
-from ..models.models import Service
+#from ..models.models import Service
 #from ..models.models import Emitter
 from ..models.models import EventType
 #from ..models.models import EventNodeRel
@@ -42,13 +42,11 @@ def config_get(request):
 @view_config(route_name='xml_config', request_method='POST',
              renderer='xbus.monitor:templates/xml_config.pt')
 def config_post(request):
-    root = ElementTree.fromstring(request.POST['conftext'])
-    session = DBSession()
-    for service in root.findall('service'):
-        name = service.get('name')
-        consumer = service.get('consumer', False)
-        s = Service(name=name, consumer=consumer, description=service.text)
-        session.add(s)
+    res = get_base_res(request)
+    res['view_title'] = 'Xbus Monitor xml config'
+    xml = request.POST['conftext']
+    load_config(xml)
+    return res
 
 
 @view_config(route_name='event_config', request_method='GET',

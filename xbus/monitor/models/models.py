@@ -16,6 +16,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (
     scoped_session,
     sessionmaker,
+    relationship
 )
 
 from zope.sqlalchemy import ZopeTransactionExtension
@@ -35,6 +36,8 @@ class Role(Base):
     login = Column(String(length=64), index=True, nullable=False, unique=True)
     service_id = Column(Integer, service_fkey, index=True, nullable=False)
     last_logged = Column(DateTime)
+
+    service = relationship("Service")
 
 
 class ActiveRole(Base):
@@ -145,6 +148,8 @@ class EventType(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(length=64), index=True, unique=True)
     description = Column(Text)
+
+    nodes = relationship("EventNode")
 
 
 class EventNode(Base):
