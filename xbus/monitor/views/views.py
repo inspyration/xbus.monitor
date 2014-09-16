@@ -12,7 +12,7 @@ from ..models.models import EventType
 #from ..models.models import EventNode
 
 
-@view_config(route_name='home', renderer='templates/home.pt')
+@view_config(route_name='home', renderer='../templates/home.pt')
 def home(request):
     return {'project': 'monitor'}
 
@@ -24,7 +24,7 @@ def config_get(request):
 
 
 @view_config(route_name='xml_config', request_method='POST',
-             renderer='templates/xml_config.pt')
+             renderer='../templates/xml_config.pt')
 def config_post(request):
     root = ElementTree.fromstring(request.POST['conftext'])
     session = DBSession()
@@ -36,33 +36,33 @@ def config_post(request):
 
 
 @view_config(route_name='event_config', request_method='GET',
-             renderer='templates/event_config.pt')
+             renderer='../templates/event_config.pt')
 def config_event_view_get(request):
     query = DBSession.query(EventType)
     return {'events': query.all()}
 
 
 @view_config(route_name='event_config_create', request_method='GET',
-             renderer='templates/event_config_create.pt')
+             renderer='../templates/event_config_create.pt')
 def config_event_create_get(request):
     return {}
 
 
 @view_config(route_name='event_config_create', request_method='POST',
-             renderer='templates/event_config_create.pt')
+             renderer='../templates/event_config_create.pt')
 def config_event_create_post(request):
     # Redirect to event_config
     return {}
 
 
 @view_config(route_name='event_config_edit', request_method='GET',
-             renderer='templates/event_config_edit.pt')
+             renderer='../templates/event_config_edit.pt')
 def config_event_edit_get(request):
     return {}
 
 
 @view_config(route_name='event_config_edit', request_method='POST',
-             renderer='templates/event_config_edit.pt')
+             renderer='../templates/event_config_edit.pt')
 def config_event_edit_post(request):
     # Redirect to event_config
     return {}
