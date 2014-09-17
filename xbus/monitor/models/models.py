@@ -37,7 +37,7 @@ class Role(Base):
     service_id = Column(Integer, service_fkey, index=True, nullable=False)
     last_logged = Column(DateTime)
 
-    service = relationship("Service")
+    service = relationship('Service', backref='roles')
 
 
 class ActiveRole(Base):
@@ -51,6 +51,8 @@ class ActiveRole(Base):
     ready = Column(Boolean, server_default='FALSE')
     last_act_date = Column(DateTime)
 
+    role_data = relationship('Role', uselist=False, backref='activity_data')
+
 
 class Service(Base):
 
@@ -60,38 +62,6 @@ class Service(Base):
     name = Column(String(length=64), index=True, unique=True)
     consumer = Column(Boolean, server_default='FALSE')
     description = Column(Text)
-
-
-class Emitter(Base):
-
-    __tablename__ = 'emitter'
-
-    profile_fkey = ForeignKey('emitter_profile.id', ondelete='CASCADE')
-
-    id = Column(Integer, primary_key=True)
-    login = Column(String(length=64), index=True, nullable=False, unique=True)
-    profile_id = Column(Integer, profile_fkey, nullable=False)
-    last_emit = Column(DateTime)
-
-
-class EmitterProfile(Base):
-
-    __tablename__ = 'emitter_profile'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(length=64), index=True, nullable=False, unique=True)
-    description = Column(Text)
-
-
-class EmitterProfileEventTypeRel(Base):
-
-    __tablename__ = 'emitter_profile_event_type_rel'
-
-    profile_fkey = ForeignKey('emitter_profile.id', ondelete='CASCADE')
-    event_type_fkey = ForeignKey('event_type.id', ondelete='CASCADE')
-
-    profile_id = Column(Integer, profile_fkey, primary_key=True)
-    event_id = Column(Integer, event_type_fkey, primary_key=True)
 
 
 class Envelope(Base):
@@ -149,7 +119,16 @@ class EventType(Base):
     name = Column(String(length=64), index=True, unique=True)
     description = Column(Text)
 
-    nodes = relationship("EventNode")
+
+class EventNodeRel(Base):
+
+    __tablename__ = 'event_node_rel'
+
+    parent_fkey = ForeignKey('event_node.id', ondelete='CASCADE')
+    child_fkey = ForeignKey('event_node.id', ondelete='CASCADE')
+
+    parent_id = Column(Integer, parent_fkey, primary_key=True)
+    child_id = Column(Integer, child_fkey, primary_key=True)
 
 
 class EventNode(Base):
@@ -164,13 +143,52 @@ class EventNode(Base):
     type_id = Column(Integer, type_fkey, index=True, nullable=False)
     start = Column(Boolean, server_default='FALSE')
 
+    service = relationship('Service')
+    type = relationship('EventType', backref='nodes')
+    children = relationship(
+        'EventNode',
+        secondary=EventNodeRel.__table__,
+        primaryjoin=id == EventNodeRel.parent_id,
+        secondaryjoin=id == EventNodeRel.child_id,
+        backref="parents"
+    )
 
-class EventNodeRel(Base):
 
-    __tablename__ = 'event_node_rel'
+class Emitter(Base):
 
-    parent_fkey = ForeignKey('event_node.id', ondelete='CASCADE')
-    child_fkey = ForeignKey('event_node.id', ondelete='CASCADE')
+    __tablename__ = 'emitter'
 
-    parent_id = Column(Integer, parent_fkey, primary_key=True)
-    child_id = Column(Integer, child_fkey, primary_key=True)
+    profile_fkey = ForeignKey('emitter_profile.id', ondelete='CASCADE')
+
+    id = Column(Integer, primary_key=True)
+    login = Column(String(length=64), index=True, nullable=False, unique=True)
+    profile_id = Column(Integer, profile_fkey, nullable=False)
+    last_emit = Column(DateTime)
+
+    profile = relationship('EmitterProfile', backref='emitters')
+
+
+class EmitterProfileEventTypeRel(Base):
+
+    __tablename__ = 'emitter_profile_event_type_rel'
+
+    profile_fkey = ForeignKey('emitter_profile.id', ondelete='CASCADE')
+    event_type_fkey = ForeignKey('event_type.id', ondelete='CASCADE')
+
+    profile_id = Column(Integer, profile_fkey, primary_key=True)
+    event_id = Column(Integer, event_type_fkey, primary_key=True)
+
+
+class EmitterProfile(Base):
+
+    __tablename__ = 'emitter_profile'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(length=64), index=True, nullable=False, unique=True)
+    description = Column(Text)
+
+    event_types = relationship(
+        "EventType",
+        secondary=EmitterProfileEventTypeRel.__table__,
+        backref="emitter_profiles"
+    )
