@@ -9,21 +9,24 @@
   </head>
 
   <body>
-    List of all event types with (name+description) with an edit/delete button for each as well as a create button.
+    <div>List of all event types with (name+description) with an edit/delete button for each as well as a create button.</div>
+    <div><a href="/config/event/new">Create</a></div>
     <table id="event_list" class="table table-striped table-bordered">
         <thead>
             <tr>
                 <th>Name</th>
                 <th>Description</th>
+                <th><span class="glyphicon glyphicon-edit"></span></th>
                 <th><span class="glyphicon glyphicon-trash"></span></th>
             </tr>
         </thead>
         <tbody>
             <tal:loop tal:repeat="event events">
                 <tr>
-                    <td><tal:content="event.name" /></td>
-                    <td><tal:content="event.description" /></td>
-                    <td><span class="glyphicon glyphicon-trash"></span></td>
+                    <td><a href="/html/config/event/${event.id}">${event.name}</td>
+                    <td>${event.description}</td>
+                    <td><a href="/html/config/event/${event.id}/edit"><span class="glyphicon glyphicon-edit"></span></a></td>
+                    <td><form id="deleteform${event.id}" method="POST" action="/html/config/event/${event.id}/delete"><input type="submit" class="glyphicon glyphicon-trash" /></form></td>
                 </tr>
             </tal:loop>
         </tbody>

@@ -8,16 +8,10 @@
       <span metal:use-macro="macros['head-base']" />
   </head>
   <body>
-    <form method="POST">
-      <input id="event_id" name="id" type="hidden" value="${event.id}">
-      <input id="event_name" name="name" type="text" value="${event.name}"><br>
-      <textarea id="event_description" name="description" rows="10" cols="100">${event.description}</textarea><br>
-      <input type="submit" name="submit" value="Submit">
-    </form>
-    <form method="POST" action="/html/config/event/${event.id}/delete">
-      <input type="submit" value="Delete">
-    </form>
-    <div><a href="/html/config/event">Back</a></div>
+    <div>${event.name}</div>
+    <div>${event.description}</div>
+    <div><a href="/html/config/event/${event.id}/edit">Edit</div>
+    <div><a href="/html/config/event">Back</div>
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->

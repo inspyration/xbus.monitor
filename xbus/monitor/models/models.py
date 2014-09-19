@@ -22,7 +22,15 @@ from sqlalchemy.orm import (
 from zope.sqlalchemy import ZopeTransactionExtension
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
+
+
+def as_dict(self):
+    return {c.name: getattr(self, c.name) for c in self.__table__.c}
+
 Base = declarative_base()
+Base.as_dict = as_dict
+
+
 ENVELOPE_STATES = ['emit', 'wait', 'exec', 'done', 'fail']
 
 

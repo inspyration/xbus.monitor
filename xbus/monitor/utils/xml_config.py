@@ -5,9 +5,7 @@ from ..models.models import Role
 from ..models.models import Service
 from ..models.models import Emitter
 from ..models.models import EventType
-from ..models.models import EventNodeRel
 from ..models.models import EmitterProfile
-from ..models.models import EmitterProfileEventTypeRel
 from ..models.models import EventNode
 
 
