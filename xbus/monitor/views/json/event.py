@@ -73,6 +73,11 @@ def config_event_read(request):
 
     if request.context is None:
         return Response(
+            json_body={
+                "error": "eventtype id {id} not found".format(
+                    id=request.matchdict.get('id')
+                )
+            },
             status_int=404,
             content_type="application/json",
         )
