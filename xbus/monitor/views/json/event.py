@@ -1,10 +1,9 @@
 from pyramid.view import view_config
-from pyramid.renderers import get_renderer
 from pyramid.response import Response
+from sqlalchemy.exc import IntegrityError
 
-from ...utils.xml_config import load_config
-from ...models.models import DBSession
-from ...models.models import EventType
+from xbus.monitor.models.models import DBSession
+from xbus.monitor.models.models import EventType
 
 
 @view_config(route_name='event_config_list', request_method='GET')
@@ -12,10 +11,10 @@ def config_event_list(request):
 
     query = DBSession.query(EventType)
     events = query.all()
-    event_dicts = [event.as_dict() for event in events]
+    jsonpload = {"events": [event.as_dict() for event in events]}
 
     return Response(
-        json_body=event_dicts, status_int=200, content_type="application/json"
+        json_body=jsonpload, status_int=200, content_type="application/json"
     )
 
 
@@ -37,49 +36,80 @@ def config_event_post(request):
     )
 
 
+@view_config(route_name='event_config_add', request_method='PUT')
+def config_event_add(request):
+
+    vals = request.json_body
+
+    # this is an eventtype creation asked by some user...
+    et = EventType()
+
+    # set eventtype vals in accordance to payload
+    et.name = vals['name']
+    et.description = vals['description']
+
+    try:
+        DBSession.add(et)
+        DBSession.flush()
+        DBSession.refresh(et)
+
+    except IntegrityError:
+        # just in case the name is already in our database
+        return Response(
+            json_body={"error": "Duplicate names not allowed"},
+            status_int=400,
+            content_type="application/json",
+        )
+
+    return Response(
+        json_body=et.as_dict(),
+        status_int=200,
+        content_type="application/json",
+    )
+
+
 @view_config(route_name='event_config', request_method='GET')
 def config_event_read(request):
 
-    event_id = int(request.matchdict['id'])
+    if request.context is None:
+        return Response(
+            status_int=404,
+            content_type="application/json",
+        )
 
-    query = DBSession.query(EventType)
-    event = query.get(event_id)
-    if event is None:
-        return Response(status_int=404, content_type="application/json")
-    event_dict = event.as_dict()
-
-    return Response(
-        json_body=event_dict, status_int=200, content_type="application/json"
-    )
+    else:
+        return Response(
+            json_body=request.context.as_dict(),
+            status_int=200,
+            content_type="application/json",
+        )
 
 
 @view_config(route_name='event_config', request_method='POST')
 def config_event_edit_post(request):
 
-    event_id = int(request.matchdict['id'])
-    vals = request.json_body
+    eventtype = request.context
 
-    query = DBSession.query(EventType)
-    event = query.get(event_id)
-    if event is None:
+    if eventtype is None:
         return Response(status_int=404, content_type="application/json")
-    event.name = vals['name']
-    event.description = vals['description']
-    event_dict = event.as_dict()
+
+    vals = request.json_body
+    # change eventtype vals in accordance to payload
+    eventtype.name = vals['name']
+    eventtype.description = vals['description']
+    DBSession.save(eventtype)
 
     return Response(
-        json_body=event_dict, status_int=200, content_type="application/json"
+        json_body=eventtype.as_dict(),
+        status_int=200,
+        content_type="application/json",
     )
 
 
 @view_config(route_name='event_config', request_method='DELETE')
 def config_event_delete(request):
 
-    event_id = int(request.matchdict['id'])
-
-    query = DBSession.query(EventType).filter(EventType.id == event_id)
-    rows = query.delete()
-    if rows == 0:
-        return Response(status_int=404, content_type="application/json")
+    eventtype = request.context
+    DBSession.delete(eventtype)
 
     return Response(status_int=204, content_type="application/json")

@@ -26,9 +26,18 @@ def main(global_config, **settings):
 
     config.add_route('home', '/')
 
+    # API exposed with JSON
     config.add_route('xml_config', '/json/config/xml')
-    config.add_route('event_config_list', '/json/config/event')
-    config.add_route('event_config', '/json/config/event/{id}')
+    config.add_route('event_config_list', '/json/config/events')
+    config.add_route(
+        'event_config',
+        '/json/config/event/{id}',
+        factory="xbus.monitor.factory.eventtype_factory",
+    )
+    config.add_route(
+        'event_config_add',
+        '/json/config/event',
+    )
 
     # HTML event config interface
     config.add_route('html_xml_config', '/html/config')
