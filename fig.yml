@@ -10,6 +10,7 @@ broker:
     ports:
         - "4510:4510"
         - "1984:1984"
+        - "2425:2425"
     links:
         - redis
         - postgresql
