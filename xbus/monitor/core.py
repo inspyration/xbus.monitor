@@ -46,14 +46,7 @@ def main(global_config, **settings):
         factory='xbus.monitor.factory.event_type',
     )
 
-    # HTML event config interface
-    config.add_route('html_xml_config', '/html/config')
-    config.add_route('html_event_config_list', '/html/config/event')
-    config.add_route('html_event_config_create', '/html/config/event/new')
-    config.add_route('html_event_config_read', '/html/config/event/{id}')
-    config.add_route('html_event_config_edit', '/html/config/event/{id}/edit')
-    config.add_route(
-        'html_event_config_delete', '/html/config/event/{id}/delete'
-    )
+    config.add_route('html_xml_config', '/html/config')  # TODO
+
     config.scan()
     return config.make_wsgi_app()
