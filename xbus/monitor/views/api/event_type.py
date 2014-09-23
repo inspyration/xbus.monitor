@@ -93,9 +93,6 @@ def event_type_update(request):
             json_body={"error": "Invalid data"},
         )
 
-    try:
-        DBSession.save(record)
-
     except IntegrityError:
         raise HTTPBadRequest(
             json_body={"error": "Duplicate names not allowed"},
