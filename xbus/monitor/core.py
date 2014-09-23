@@ -24,11 +24,12 @@ def main(global_config, **settings):
     config.include('pyramid_chameleon')
     config.add_static_view('static', 'static', cache_max_age=3600)
 
+    # Pages.
+
     config.add_route('home', '/')
+    config.add_route('xml_config_ui', '/xml_config')
 
-    # API exposed with JSON
-
-    config.add_route('xml_config', '/json/config/xml')  # TODO
+    # REST API exposed with JSON.
 
     config.add_route(
         'event_type_list',
@@ -46,7 +47,7 @@ def main(global_config, **settings):
         factory='xbus.monitor.factory.event_type',
     )
 
-    config.add_route('html_xml_config', '/html/config')  # TODO
+    config.add_route('xml_config', '/api/xml_config')
 
     config.scan()
     return config.make_wsgi_app()

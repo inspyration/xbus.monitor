@@ -16,15 +16,15 @@ def get_base_res(request):
 @view_config(route_name='home', renderer='xbus.monitor:templates/home.pt')
 def home_view(request):
     res = get_base_res(request)
-    res['view_title'] = 'Xbus Monitor Home'
+    res['view_title'] = 'Home'
     return res
 
 
 @view_config(
-    route_name='html_xml_config',
+    route_name='xml_config_ui',
     renderer='xbus.monitor:templates/xml_config.pt',
 )
-def config_view(request):
+def xml_config_view(request):
     res = get_base_res(request)
-    res['view_title'] = 'Xbus Monitor xml config'
+    res['view_title'] = 'XML configuration'
     return res

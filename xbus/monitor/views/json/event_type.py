@@ -111,4 +111,4 @@ def event_type_delete(request):
     event_type = _get_event_type(request)
     DBSession.delete(event_type)
 
-    return Response(status_int=204, content_type="application/json")
+    return Response(status_int=204, json_body={})
