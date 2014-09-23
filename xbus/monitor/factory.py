@@ -3,6 +3,7 @@ from pyramid.httpexceptions import HTTPBadRequest
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import Emitter
 from xbus.monitor.models.models import EmitterProfile
+from xbus.monitor.models.models import EmitterProfileEventTypeRel
 from xbus.monitor.models.models import Envelope
 from xbus.monitor.models.models import Event
 from xbus.monitor.models.models import EventError
@@ -34,6 +35,10 @@ def emitter(request):
 
 def emitter_profile(request):
     return _generic_record_factory(request, EmitterProfile)
+
+
+def emitter_profile_event_type(request):
+    return _generic_record_factory(request, EmitterProfileEventTypeRel)
 
 
 def envelope(request):
