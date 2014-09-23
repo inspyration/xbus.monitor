@@ -66,6 +66,7 @@ def main(global_config, **settings):
     _add_api_routes(config, 'event')
     _add_api_routes(config, 'event_error')
     _add_api_routes(config, 'event_node')
+    _add_api_routes(config, 'event_node_link')
     _add_api_routes(config, 'event_type')
     _add_api_routes(config, 'role')
     _add_api_routes(config, 'role_active')
@@ -73,7 +74,6 @@ def main(global_config, **settings):
 
     # TODO many2many
 #     _add_api_routes(config, 'emitter_profile_event_type_rel')
-#     _add_api_routes(config, 'event_node_rel')
 
     config.add_route('xml_config', '/api/xml_config')
 
