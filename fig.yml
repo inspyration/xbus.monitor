@@ -5,7 +5,7 @@ postgresql:
     image: xcgd/postgresql
 
 broker:
-    build: xbus_broker
+    build: xbus.broker
     command: /opt/xbus/broker/broker
     ports:
         - "4510:4510"

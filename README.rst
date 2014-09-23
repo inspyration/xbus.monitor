@@ -7,7 +7,7 @@ Install with Docker and Fig
 Clone xbus_monitor and xbus_broker in the same directory. Move the fig.yml file to this parent directory::
 
   $ hg clone ssh://hg@bitbucket.org/xcg/xbus_monitor
-  $ hg clone ssh://hg@bitbucket.org/xcg/xbus_broker
+  $ hg clone ssh://hg@bitbucket.org/xcg/xbus.broker
   $ ln -s xbus_monitor/fig.yml .
   $ mkdir etc
   $ cp xbus_monitor/production.ini.sample etc/production.ini
