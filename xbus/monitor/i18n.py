@@ -13,7 +13,7 @@ def init_i18n(config):
     translation_factory = TranslationStringFactory('xbus_monitor')
 
     config.add_translation_dirs(
-        'xbus_monitor:locale/'
+        'xbus.monitor:locale/'
     )
 
 
