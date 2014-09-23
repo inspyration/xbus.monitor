@@ -48,7 +48,7 @@ class Role(Base):
     service = relationship('Service', backref='roles')
 
 
-class ActiveRole(Base):
+class RoleActive(Base):
 
     __tablename__ = 'role_active'
 

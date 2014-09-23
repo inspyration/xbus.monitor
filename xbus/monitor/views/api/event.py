@@ -5,50 +5,43 @@ from pyramid.view import view_config
 from sqlalchemy.exc import IntegrityError
 
 from xbus.monitor.models.models import DBSession
-from xbus.monitor.models.models import EventType
+from xbus.monitor.models.models import Event
 
 
 @view_config(
-    route_name='event_type_list',
+    route_name='event_list',
     renderer='json',
 )
-def event_type_list(request):
+def event_list(request):
 
-    query = DBSession.query(EventType)
+    query = DBSession.query(Event)
     events = query.all()
     jsonpload = {"events": [event.as_dict() for event in events]}
     return jsonpload
 
 
 @view_config(
-    route_name='event_type_create',
+    route_name='event_create',
     renderer='json',
 )
-def event_type_create(request):
+def event_create(request):
 
-    record = EventType()
+    record = Event()
 
     try:
         # Fill the record using received parameters.
         vals = request.json_body
 
-        record.name = vals['name']
-        record.description = vals['description']
+        # TODO Implement.
 
     except (KeyError, ValueError):
         raise HTTPBadRequest(
             json_body={"error": "Invalid data"},
         )
 
-    try:
-        DBSession.add(record)
-        DBSession.flush()
-        DBSession.refresh(record)
-
-    except IntegrityError:
-        raise HTTPBadRequest(
-            json_body={"error": "Duplicate names not allowed"},
-        )
+    DBSession.add(record)
+    DBSession.flush()
+    DBSession.refresh(record)
 
     return record.as_dict()
 
@@ -57,7 +50,7 @@ def _get_record(request):
     if request.context is None:
         raise HTTPNotFound(
             json_body={
-                "error": "Event type ID {id} not found".format(
+                "error": "Event ID {id} not found".format(
                     id=request.matchdict.get('id')
                 )
             },
@@ -66,21 +59,21 @@ def _get_record(request):
 
 
 @view_config(
-    route_name='event_type',
+    route_name='event',
     request_method='GET',
     renderer='json',
 )
-def event_type_read(request):
+def event_read(request):
     record = _get_record(request)
     return record.as_dict()
 
 
 @view_config(
-    route_name='event_type',
+    route_name='event',
     request_method='PUT',
     renderer='json',
 )
-def event_type_update(request):
+def event_update(request):
     record = _get_record(request)
 
     try:
@@ -107,11 +100,11 @@ def event_type_update(request):
 
 
 @view_config(
-    route_name='event_type',
+    route_name='event',
     request_method='DELETE',
     renderer='json',
 )
-def event_type_delete(request):
+def event_delete(request):
     record = _get_record(request)
     DBSession.delete(record)
 

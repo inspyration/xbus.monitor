@@ -5,50 +5,43 @@ from pyramid.view import view_config
 from sqlalchemy.exc import IntegrityError
 
 from xbus.monitor.models.models import DBSession
-from xbus.monitor.models.models import EventType
+from xbus.monitor.models.models import RoleActive
 
 
 @view_config(
-    route_name='event_type_list',
+    route_name='role_active_list',
     renderer='json',
 )
-def event_type_list(request):
+def role_active_list(request):
 
-    query = DBSession.query(EventType)
-    events = query.all()
-    jsonpload = {"events": [event.as_dict() for event in events]}
+    query = DBSession.query(RoleActive)
+    role_actives = query.all()
+    jsonpload = {"role_actives": [role_active.as_dict() for role_active in role_actives]}
     return jsonpload
 
 
 @view_config(
-    route_name='event_type_create',
+    route_name='role_active_create',
     renderer='json',
 )
-def event_type_create(request):
+def role_active_create(request):
 
-    record = EventType()
+    record = RoleActive()
 
     try:
         # Fill the record using received parameters.
         vals = request.json_body
 
-        record.name = vals['name']
-        record.description = vals['description']
+        # TODO Implement.
 
     except (KeyError, ValueError):
         raise HTTPBadRequest(
             json_body={"error": "Invalid data"},
         )
 
-    try:
-        DBSession.add(record)
-        DBSession.flush()
-        DBSession.refresh(record)
-
-    except IntegrityError:
-        raise HTTPBadRequest(
-            json_body={"error": "Duplicate names not allowed"},
-        )
+    DBSession.add(record)
+    DBSession.flush()
+    DBSession.refresh(record)
 
     return record.as_dict()
 
@@ -57,7 +50,7 @@ def _get_record(request):
     if request.context is None:
         raise HTTPNotFound(
             json_body={
-                "error": "Event type ID {id} not found".format(
+                "error": "Active role ID {id} not found".format(
                     id=request.matchdict.get('id')
                 )
             },
@@ -66,21 +59,21 @@ def _get_record(request):
 
 
 @view_config(
-    route_name='event_type',
+    route_name='role_active',
     request_method='GET',
     renderer='json',
 )
-def event_type_read(request):
+def role_active_read(request):
     record = _get_record(request)
     return record.as_dict()
 
 
 @view_config(
-    route_name='event_type',
+    route_name='role_active',
     request_method='PUT',
     renderer='json',
 )
-def event_type_update(request):
+def role_active_update(request):
     record = _get_record(request)
 
     try:
@@ -107,11 +100,11 @@ def event_type_update(request):
 
 
 @view_config(
-    route_name='event_type',
+    route_name='role_active',
     request_method='DELETE',
     renderer='json',
 )
-def event_type_delete(request):
+def role_active_delete(request):
     record = _get_record(request)
     DBSession.delete(record)
 

@@ -6,6 +6,28 @@ from .models.models import DBSession
 from .models.models import Base
 
 
+def _add_api_routes(config, model):
+    """Register routes for a model to be exposed through the API. The relevant
+    views then have to be implemented by referencing these routes.
+    """
+
+    config.add_route(
+        '%s_list' % model,
+        '/api/%s' % model,
+        request_method='GET',
+    )
+    config.add_route(
+        '%s_create' % model,
+        '/api/%s' % model,
+        request_method='POST',
+    )
+    config.add_route(
+        model,
+        '/api/%s/{id}' % model,
+        factory='xbus.monitor.factory.%s' % model,
+    )
+
+
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
@@ -31,21 +53,19 @@ def main(global_config, **settings):
 
     # REST API exposed with JSON.
 
-    config.add_route(
-        'event_type_list',
-        '/api/event_type',
-        request_method='GET',
-    )
-    config.add_route(
-        'event_type_create',
-        '/api/event_type',
-        request_method='POST',
-    )
-    config.add_route(
-        'event_type',
-        '/api/event_type/{id}',
-        factory='xbus.monitor.factory.event_type',
-    )
+    _add_api_routes(config, 'emitter')
+    _add_api_routes(config, 'emitter_profile')
+    _add_api_routes(config, 'envelope')
+    _add_api_routes(config, 'event')
+    _add_api_routes(config, 'event_error')
+    _add_api_routes(config, 'event_type')
+    _add_api_routes(config, 'role')
+    _add_api_routes(config, 'role_active')
+    _add_api_routes(config, 'service')
+
+    # TODO many2many
+#     _add_api_routes(config, 'emitter_profile_event_type_rel')
+#     _add_api_routes(config, 'event_node_rel')
 
     config.add_route('xml_config', '/api/xml_config')
 
