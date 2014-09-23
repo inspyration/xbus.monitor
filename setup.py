@@ -21,7 +21,7 @@ requires = [
 
 setup(name='xbus.monitor',
       version='0.0',
-      description='XBus Monitor',
+      description='Xbus Monitor',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
           "Programming Language :: Python",

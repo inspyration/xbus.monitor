@@ -37,7 +37,7 @@ initialize the database::
 
   $ fig run --rm monitor initialize_monitor_db /opt/xbus/monitor/etc/production.ini
 
-Start XBus::
+Start Xbus::
 
   $ fig up
 

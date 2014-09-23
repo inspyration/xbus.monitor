@@ -14,6 +14,6 @@ def get_view_params(request, title):
             get_renderer('xbus.monitor:templates/base.pt')
             .implementation().macros
         ),
-        'project': 'XBus monitor',
+        'project': 'Xbus Monitor',
         'view_title': title,
     }
