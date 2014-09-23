@@ -1,9 +1,13 @@
 from pyramid import security
 from pyramid.renderers import get_renderer
 
+from xbus.monitor.i18n import req_l10n
+
 
 def get_view_params(request, title):
     """Fill parameters used by every view."""
+
+    _ = req_l10n(request)
 
     login = security.authenticated_userid(request)
 
@@ -14,6 +18,6 @@ def get_view_params(request, title):
             get_renderer('xbus.monitor:templates/base.pt')
             .implementation().macros
         ),
-        'project': 'Xbus Monitor',
+        'project': _('Xbus Monitor'),
         'view_title': title,
     }

@@ -2,6 +2,7 @@ import os
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
 
+from .i18n import init_i18n
 from .models.models import DBSession
 from .models.models import Base
 
@@ -29,8 +30,9 @@ def _add_api_routes(config, model):
 
 
 def main(global_config, **settings):
-    """ This function returns a Pyramid WSGI application.
+    """Initiate a Pyramid WSGI application.
     """
+
     db_url = settings.get('fig.sqlalchemy.url')
     if db_url:
         pg_socket_var = os.getenv('XBUS_POSTGRESQL_1_PORT')
@@ -42,8 +44,13 @@ def main(global_config, **settings):
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
+
     config = Configurator(settings=settings)
+
+    init_i18n(config)
+
     config.include('pyramid_chameleon')
+
     config.add_static_view('static', 'static', cache_max_age=3600)
 
     # Pages.

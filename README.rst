@@ -50,5 +50,45 @@ Install without Docker
   $ cd <directory containing this file>
   $ $VENV/bin/python setup.py develop
   $ $VENV/bin/initialize_monitor_db development.ini
-  $ $VENV/bin/pserve development.ini
 
+Configure
+---------
+
+Copy production-sample.ini to development.ini and edit it.
+
+Only use en_US or fr_FR for now in pyramid.default_locale_name
+
+Localization:
+
+    Edit the "pyramid.default_locale_name" variable.
+
+Run
+---
+
+With Docker::
+
+    fig up
+
+Without Docker::
+
+    $VENV/bin/pserve development.ini
+
+Run tests
+---------
+::
+
+    nosetests
+
+Generate the translation template
+---------------------------------
+::
+
+    pip install Babel lingua
+    python setup.py extract_messages
+
+Other translation tasks
+-----------------------
+See <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html>.
+::
+
+    python setup.py [init_catalog -l en_US] [update_catalog] [compile_catalog]

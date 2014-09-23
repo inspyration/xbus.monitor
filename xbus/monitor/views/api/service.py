@@ -5,28 +5,28 @@ from pyramid.view import view_config
 from sqlalchemy.exc import IntegrityError
 
 from xbus.monitor.models.models import DBSession
-from xbus.monitor.models.models import Service
+from xbus.monitor.models.models import Event
 
 
 @view_config(
-    route_name='service_list',
+    route_name='event_list',
     renderer='json',
 )
-def service_list(request):
+def event_list(request):
 
-    query = DBSession.query(Service)
-    services = query.all()
-    jsonpload = {"services": [service.as_dict() for service in services]}
+    query = DBSession.query(Event)
+    events = query.all()
+    jsonpload = {"events": [event.as_dict() for event in events]}
     return jsonpload
 
 
 @view_config(
-    route_name='service_create',
+    route_name='event_create',
     renderer='json',
 )
-def service_create(request):
+def event_create(request):
 
-    record = Service()
+    record = Event()
 
     try:
         # Fill the record using received parameters.
@@ -50,7 +50,7 @@ def _get_record(request):
     if request.context is None:
         raise HTTPNotFound(
             json_body={
-                "error": "Service ID {id} not found".format(
+                "error": "Event ID {id} not found".format(
                     id=request.matchdict.get('id')
                 )
             },
@@ -59,21 +59,21 @@ def _get_record(request):
 
 
 @view_config(
-    route_name='service',
+    route_name='event',
     request_method='GET',
     renderer='json',
 )
-def service_read(request):
+def event_read(request):
     record = _get_record(request)
     return record.as_dict()
 
 
 @view_config(
-    route_name='service',
+    route_name='event',
     request_method='PUT',
     renderer='json',
 )
-def service_update(request):
+def event_update(request):
     record = _get_record(request)
 
     try:
@@ -100,11 +100,11 @@ def service_update(request):
 
 
 @view_config(
-    route_name='service',
+    route_name='event',
     request_method='DELETE',
     renderer='json',
 )
-def service_delete(request):
+def event_delete(request):
     record = _get_record(request)
     DBSession.delete(record)
 

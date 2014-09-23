@@ -39,10 +39,15 @@ setup(
     zip_safe=False,
     test_suite='xbus.monitor',
     install_requires=requires,
+    tests_require=requires,
     entry_points="""\
     [paste.app_factory]
     main = xbus.monitor:main
     [console_scripts]
     initialize_monitor_db = xbus.monitor.scripts.initializedb:main
     """,
+    message_extractors={'xbus.monitor': [
+        ('xbus/monitor/**.py', 'lingua_python', None),
+        ('xbus/monitor/templates/**.pt', 'lingua_xml', None),
+    ]},
 )
