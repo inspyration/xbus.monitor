@@ -65,6 +65,7 @@ def main(global_config, **settings):
     _add_api_routes(config, 'envelope')
     _add_api_routes(config, 'event')
     _add_api_routes(config, 'event_error')
+    _add_api_routes(config, 'event_node')
     _add_api_routes(config, 'event_type')
     _add_api_routes(config, 'role')
     _add_api_routes(config, 'role_active')

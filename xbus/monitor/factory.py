@@ -6,6 +6,7 @@ from xbus.monitor.models.models import EmitterProfile
 from xbus.monitor.models.models import Envelope
 from xbus.monitor.models.models import Event
 from xbus.monitor.models.models import EventError
+from xbus.monitor.models.models import EventNode
 from xbus.monitor.models.models import EventType
 from xbus.monitor.models.models import Role
 from xbus.monitor.models.models import RoleActive
@@ -44,6 +45,10 @@ def event(request):
 
 def event_error(request):
     return _generic_record_factory(request, EventError)
+
+
+def event_node(request):
+    return _generic_record_factory(request, EventNode)
 
 
 def event_type(request):
