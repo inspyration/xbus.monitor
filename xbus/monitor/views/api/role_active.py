@@ -7,17 +7,15 @@ from sqlalchemy.exc import IntegrityError
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import RoleActive
 
+from .util import get_list
+
 
 @view_config(
     route_name='role_active_list',
     renderer='json',
 )
 def role_active_list(request):
-
-    query = DBSession.query(RoleActive)
-    role_actives = query.all()
-    jsonpload = {"role_actives": [role_active.as_dict() for role_active in role_actives]}
-    return jsonpload
+    return get_list('role_actives', RoleActive)
 
 
 @view_config(

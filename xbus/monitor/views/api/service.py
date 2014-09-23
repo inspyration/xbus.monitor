@@ -7,17 +7,15 @@ from sqlalchemy.exc import IntegrityError
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import Service
 
+from .util import get_list
+
 
 @view_config(
     route_name='service_list',
     renderer='json',
 )
 def service_list(request):
-
-    query = DBSession.query(Service)
-    services = query.all()
-    jsonpload = {"services": [service.as_dict() for service in services]}
-    return jsonpload
+    return get_list('services', Service)
 
 
 @view_config(

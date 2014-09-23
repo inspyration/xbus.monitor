@@ -7,17 +7,15 @@ from sqlalchemy.exc import IntegrityError
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import EventNode
 
+from .util import get_list
+
 
 @view_config(
     route_name='event_node_list',
     renderer='json',
 )
 def event_node_list(request):
-
-    query = DBSession.query(EventNode)
-    event_nodes = query.all()
-    jsonpload = {"event_nodes": [event_node.as_dict() for event_node in event_nodes]}
-    return jsonpload
+    return get_list('event_nodes', EventNode)
 
 
 @view_config(

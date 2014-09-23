@@ -7,17 +7,15 @@ from sqlalchemy.exc import IntegrityError
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import Envelope
 
+from .util import get_list
+
 
 @view_config(
     route_name='envelope_list',
     renderer='json',
 )
 def envelope_list(request):
-
-    query = DBSession.query(Envelope)
-    envelopes = query.all()
-    jsonpload = {"envelopes": [envelope.as_dict() for envelope in envelopes]}
-    return jsonpload
+    return get_list('envelopes', Envelope)
 
 
 @view_config(

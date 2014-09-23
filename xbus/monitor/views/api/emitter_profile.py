@@ -7,17 +7,15 @@ from sqlalchemy.exc import IntegrityError
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import EmitterProfile
 
+from .util import get_list
+
 
 @view_config(
     route_name='emitter_profile_list',
     renderer='json',
 )
 def emitter_profile_list(request):
-
-    query = DBSession.query(EmitterProfile)
-    emitter_profiles = query.all()
-    jsonpload = {"emitter_profiles": [emitter_profile.as_dict() for emitter_profile in emitter_profiles]}
-    return jsonpload
+    return get_list('emitter_profiles', EmitterProfile)
 
 
 @view_config(
