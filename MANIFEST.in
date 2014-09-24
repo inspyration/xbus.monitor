@@ -3,3 +3,4 @@ recursive-include xbus/monitor/static *
 recursive-include xbus/monitor/templates *.pt
 recursive-include xbus/monitor/demo *.csv
 recursive-include xbus/monitor/scripts *.sql
+recursive-include xbus/monitor/locale *.pot
