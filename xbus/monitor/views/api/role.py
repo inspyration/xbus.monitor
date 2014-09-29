@@ -30,7 +30,9 @@ def role_create(request):
         # Fill the record using received parameters.
         vals = request.json_body
 
-        # TODO Implement.
+        record.login = vals['login']
+        record.service_id = vals['service_id']
+        record.last_logged = vals['last_logged']
 
     except (KeyError, ValueError):
         raise HTTPBadRequest(
@@ -78,8 +80,9 @@ def role_update(request):
         # Fill the record using received parameters.
         vals = request.json_body
 
-        record.name = vals['name']
-        record.description = vals['description']
+        record.login = vals['login']
+        record.service_id = vals['service_id']
+        record.last_logged = vals['last_logged']
 
     except (KeyError, ValueError):
         raise HTTPBadRequest(

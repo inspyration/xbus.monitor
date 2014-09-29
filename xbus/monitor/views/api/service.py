@@ -31,7 +31,7 @@ def service_create(request):
         vals = request.json_body
 
         record.name = vals['name']
-        record.consumer = vals['consumer']
+        record.consumer = vals.get('consumer', False)
         record.description = vals['description']
 
     except (KeyError, ValueError):
@@ -81,7 +81,7 @@ def service_update(request):
         vals = request.json_body
 
         record.name = vals['name']
-        record.consumer = vals['consumer']
+        record.consumer = vals.get('consumer', False)
         record.description = vals['description']
 
     except (KeyError, ValueError):

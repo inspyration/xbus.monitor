@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy import (
     Column,
     Integer,
@@ -24,8 +26,17 @@ from zope.sqlalchemy import ZopeTransactionExtension
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 
 
-def as_dict(self):
-    return {c.name: getattr(self, c.name) for c in self.__table__.c}
+def serialize(value):
+    """Serialize types JSON cannot handle."""
+    if isinstance(value, datetime.date):
+        return datetime.date.isoformat(value)
+    if isinstance(value, datetime.datetime):
+        return datetime.datetime.isoformat(value)
+    return value
+
+
+def as_dict(obj):
+    return {c.name: serialize(getattr(obj, c.name)) for c in obj.__table__.c}
 
 Base = declarative_base()
 Base.as_dict = as_dict
