@@ -2,14 +2,14 @@ DROP TYPE IF EXISTS xbusevent_type_servicecount CASCADE;
 DROP TYPE IF EXISTS xbusevent_type_zmqids CASCADE;
 DROP TYPE IF EXISTS xbusevent_type_event_tree CASCADE;
 
-CREATE TYPE xbusevent_type_servicecount AS (id integer, name character varying, consumer boolean, count integer);
-CREATE TYPE xbusevent_type_zmqids AS (service_id integer, consumer boolean, zmqids integer[], role_ids integer[]);
-CREATE TYPE xbusevent_type_event_tree AS (id integer, service_id integer, start boolean, child_ids integer[]);
+CREATE TYPE xbusevent_type_servicecount AS (id uuid, name character varying, consumer boolean, count integer);
+CREATE TYPE xbusevent_type_zmqids AS (service_id uuid, consumer boolean, zmqids integer[], role_ids uuid[]);
+CREATE TYPE xbusevent_type_event_tree AS (id uuid, service_id uuid, start boolean, child_ids uuid[]);
 
 CREATE OR REPLACE FUNCTION xbusrole_sign_in(param_login character varying, param_zmqid integer) RETURNS character varying AS
 $BODY$
 DECLARE
-	v_role_id integer;
+	v_role_id uuid;
 BEGIN
 	LOCK role_active IN EXCLUSIVE MODE;
 	SELECT INTO v_role_id id FROM role WHERE role.login = param_login;
@@ -29,7 +29,7 @@ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION xbusrole_sign_out(param_login character varying, param_zmqid integer) RETURNS character varying AS
 $BODY$
 DECLARE
-	v_role_id integer;
+	v_role_id uuid;
 BEGIN
 	LOCK role_active IN EXCLUSIVE MODE;
 	SELECT INTO v_role_id id FROM role WHERE role.login = param_login;
@@ -47,7 +47,7 @@ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION xbusrole_ready(param_login character varying, param_zmqid integer) RETURNS character varying AS
 $BODY$
 DECLARE
-	v_role_id integer;
+	v_role_id uuid;
 BEGIN
 	LOCK role_active IN EXCLUSIVE MODE;
 	SELECT INTO v_role_id id FROM role WHERE role.login = param_login;
@@ -66,7 +66,7 @@ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION xbusrole_unavailable(param_login character varying, param_zmqid integer) RETURNS character varying AS
 $BODY$
 DECLARE
-	v_role_id integer;
+	v_role_id uuid;
 BEGIN
 	LOCK role_active IN EXCLUSIVE MODE;
 	SELECT INTO v_role_id id FROM role WHERE role.login = param_login;
@@ -105,7 +105,7 @@ $BODY$
 DECLARE
 	sc xbusevent_type_servicecount;
 	zmq xbusevent_type_zmqids;
-	v_role_ids integer[];
+	v_role_ids uuid[];
 BEGIN
 	LOCK role_active IN EXCLUSIVE MODE;
 	FOR sc IN SELECT service.id, service.name, service.consumer, count(*)
@@ -172,46 +172,46 @@ END
 $BODY$
 LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION xbusenvelope_new_envelope(param_login character varying, param_env_uuid uuid) RETURNS int AS
+CREATE OR REPLACE FUNCTION xbusenvelope_new_envelope(param_login character varying, param_env_uuid uuid) RETURNS uuid AS
 $BODY$
 DECLARE
-	v_emitter_id integer;
+	v_emitter_id uuid;
 BEGIN
 	LOCK emitter IN EXCLUSIVE MODE;
 	SELECT INTO v_emitter_id id FROM emitter WHERE emitter.login = param_login;
 	IF v_emitter_id IS NULL THEN RAISE EXCEPTION 'Invalid emitter login: %%', param_login;
 	END IF;
 	UPDATE emitter SET last_emit = localtimestamp where emitter.id = v_emitter_id;
-    INSERT INTO envelope (uuid, emitter_id, state, posted_date) VALUES (param_env_uuid, v_emitter_id, 'emit', localtimestamp);
+    INSERT INTO envelope (id, emitter_id, state, posted_date) VALUES (param_env_uuid, v_emitter_id, 'emit', localtimestamp);
     RETURN v_emitter_id;
 END
 $BODY$
 LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION xbusenvelope_new_event(param_evt_type character varying, param_emitter_id int, param_env_uuid uuid, param_evt_uuid uuid) RETURNS void AS
+CREATE OR REPLACE FUNCTION xbusenvelope_new_event(param_evt_type character varying, param_emitter_id uuid, param_env_uuid uuid, param_evt_uuid uuid) RETURNS void AS
 $BODY$
 DECLARE
-	v_event_type_id integer;
+	v_event_type_id uuid;
 BEGIN
 	SELECT INTO v_event_type_id event_type.id
 	FROM emitter
 	JOIN emitter_profile_event_type_rel ON emitter.profile_id = emitter_profile_event_type_rel.profile_id
 	JOIN event_type ON emitter_profile_event_type_rel.event_id = event_type.id
 	WHERE emitter.id = param_emitter_id AND event_type.name = param_evt_type;
-	IF v_event_type_id IS NULL THEN RAISE EXCEPTION 'Login %% is not allowed to post event of type %%', param_login, param_evt_type;
+	IF v_event_type_id IS NULL THEN RAISE EXCEPTION 'Login %% is not allowed to post event of type %%', param_emitter_id, param_evt_type;
 	END IF;
-    INSERT INTO event (uuid, envelope_uuid, type_id, emitter_id, started_date) VALUES (param_evt_uuid, param_env_uuid, v_event_type_id, param_emitter_id, localtimestamp);
+    INSERT INTO event (id, envelope_id, type_id, emitter_id, started_date) VALUES (param_evt_uuid, param_env_uuid, v_event_type_id, param_emitter_id, localtimestamp);
     RETURN;
 END
 $BODY$
 LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION xbusenvelope_fail(param_env_uuid uuid, param_evt_uuid uuid, param_service_id int, param_items text, param_message text) RETURNS void AS
+CREATE OR REPLACE FUNCTION xbusenvelope_fail(param_env_uuid uuid, param_evt_uuid uuid, param_service_id uuid, param_items text, param_message text) RETURNS void AS
 $BODY$
 BEGIN
 	LOCK envelope IN EXCLUSIVE MODE;
-	UPDATE envelope SET state = 'fail' WHERE uuid = param_env_uuid;
-	INSERT INTO event_error (envelope_uuid, event_uuid, service_id, items, message, error_date) VALUES (param_env_uuid, param_evt_uuid, param_service_id, param_items, param_message, localtimestamp);
+	UPDATE envelope SET state = 'fail' WHERE id = param_env_uuid;
+	INSERT INTO event_error (envelope_id, event_id, service_id, items, message, error_date) VALUES (param_env_uuid, param_evt_uuid, param_service_id, param_items, param_message, localtimestamp);
 	RETURN;
 END
 $BODY$

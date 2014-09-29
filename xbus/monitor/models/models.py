@@ -11,7 +11,9 @@ from sqlalchemy import (
     ForeignKey,
 )
 
-from sqlalchemy.dialects.postgresql import UUID
+from uuid import uuid4
+
+from .types import UUID
 
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -51,9 +53,9 @@ class Role(Base):
 
     service_fkey = ForeignKey('service.id', ondelete='CASCADE')
 
-    id = Column(Integer, primary_key=True)
+    id = Column(UUID, default=uuid4, primary_key=True)
     login = Column(String(length=64), index=True, nullable=False, unique=True)
-    service_id = Column(Integer, service_fkey, index=True, nullable=False)
+    service_id = Column(UUID, service_fkey, index=True, nullable=False)
     last_logged = Column(DateTime)
 
     service = relationship('Service', backref='roles')
@@ -65,7 +67,7 @@ class RoleActive(Base):
 
     role_fkey = ForeignKey('role.id', ondelete='CASCADE')
 
-    role_id = Column(Integer, role_fkey, primary_key=True)
+    role_id = Column(UUID, role_fkey, default=uuid4, primary_key=True)
     zmqid = Column(Integer, index=True, unique=True)
     ready = Column(Boolean, server_default='FALSE')
     last_act_date = Column(DateTime)
@@ -77,7 +79,7 @@ class Service(Base):
 
     __tablename__ = 'service'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(UUID, default=uuid4, primary_key=True)
     name = Column(String(length=64), index=True, unique=True)
     consumer = Column(Boolean, server_default='FALSE')
     description = Column(Text)
@@ -90,8 +92,8 @@ class Envelope(Base):
     emitter_fkey = ForeignKey('emitter.id', ondelete='RESTRICT')
     state_enum = Enum(*ENVELOPE_STATES, name='envelope_state')
 
-    uuid = Column(UUID, primary_key=True)
-    emitter_id = Column(Integer, emitter_fkey, nullable=False)
+    id = Column(UUID, default=uuid4, primary_key=True)
+    emitter_id = Column(UUID, emitter_fkey, nullable=False)
     state = Column(state_enum, nullable=False)
     posted_date = Column(DateTime, nullable=False)
     done_date = Column(DateTime)
@@ -101,14 +103,14 @@ class Event(Base):
 
     __tablename__ = 'event'
 
-    envelope_fkey = ForeignKey('envelope.uuid', ondelete='CASCADE')
+    envelope_fkey = ForeignKey('envelope.id', ondelete='CASCADE')
     emitter_fkey = ForeignKey('emitter.id', ondelete='RESTRICT')
     type_fkey = ForeignKey('event_type.id', ondelete='RESTRICT')
 
-    uuid = Column(UUID, primary_key=True)
-    envelope_uuid = Column(UUID, envelope_fkey, index=True, nullable=False)
-    emitter_id = Column(Integer, emitter_fkey, nullable=False)
-    type_id = Column(Integer, type_fkey, nullable=False)
+    id = Column(UUID, default=uuid4, primary_key=True)
+    envelope_id = Column(UUID, envelope_fkey, index=True, nullable=False)
+    emitter_id = Column(UUID, emitter_fkey, nullable=False)
+    type_id = Column(UUID, type_fkey, nullable=False)
     started_date = Column(DateTime)
     done_date = Column(DateTime)
 
@@ -117,14 +119,14 @@ class EventError(Base):
 
     __tablename__ = 'event_error'
 
-    envelope_fkey = ForeignKey('envelope.uuid', ondelete='CASCADE')
-    event_fkey = ForeignKey('event.uuid', ondelete='CASCADE')
+    envelope_fkey = ForeignKey('envelope.id', ondelete='CASCADE')
+    event_fkey = ForeignKey('event.id', ondelete='CASCADE')
     service_fkey = ForeignKey('service.id', ondelete='CASCADE')
 
-    id = Column(Integer, primary_key=True)
+    id = Column(UUID, default=uuid4, primary_key=True)
     envelope_uuid = Column(UUID, envelope_fkey, index=True, nullable=False)
     event_uuid = Column(UUID, event_fkey, nullable=False)
-    service_id = Column(Integer, service_fkey)
+    service_id = Column(UUID, service_fkey)
     items = Column(Text)
     message = Column(Text)
     error_date = Column(DateTime, nullable=False)
@@ -134,7 +136,7 @@ class EventType(Base):
 
     __tablename__ = 'event_type'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(UUID, default=uuid4, primary_key=True)
     name = Column(String(length=64), index=True, unique=True)
     description = Column(Text)
 
@@ -146,8 +148,8 @@ class EventNodeRel(Base):
     parent_fkey = ForeignKey('event_node.id', ondelete='CASCADE')
     child_fkey = ForeignKey('event_node.id', ondelete='CASCADE')
 
-    parent_id = Column(Integer, parent_fkey, primary_key=True)
-    child_id = Column(Integer, child_fkey, primary_key=True)
+    parent_id = Column(UUID, parent_fkey, primary_key=True)
+    child_id = Column(UUID, child_fkey, primary_key=True)
 
 
 class EventNode(Base):
@@ -157,9 +159,9 @@ class EventNode(Base):
     type_fkey = ForeignKey('event_type.id', ondelete='RESTRICT')
     service_fkey = ForeignKey('service.id', ondelete='RESTRICT')
 
-    id = Column(Integer, primary_key=True)
-    service_id = Column(Integer, service_fkey, nullable=False)
-    type_id = Column(Integer, type_fkey, index=True, nullable=False)
+    id = Column(UUID, default=uuid4, primary_key=True)
+    service_id = Column(UUID, service_fkey, nullable=False)
+    type_id = Column(UUID, type_fkey, index=True, nullable=False)
     start = Column(Boolean, server_default='FALSE')
 
     service = relationship('Service')
@@ -179,9 +181,9 @@ class Emitter(Base):
 
     profile_fkey = ForeignKey('emitter_profile.id', ondelete='CASCADE')
 
-    id = Column(Integer, primary_key=True)
+    id = Column(UUID, default=uuid4, primary_key=True)
     login = Column(String(length=64), index=True, nullable=False, unique=True)
-    profile_id = Column(Integer, profile_fkey, nullable=False)
+    profile_id = Column(UUID, profile_fkey, nullable=False)
     last_emit = Column(DateTime)
 
     profile = relationship('EmitterProfile', backref='emitters')
@@ -194,15 +196,15 @@ class EmitterProfileEventTypeRel(Base):
     profile_fkey = ForeignKey('emitter_profile.id', ondelete='CASCADE')
     event_type_fkey = ForeignKey('event_type.id', ondelete='CASCADE')
 
-    profile_id = Column(Integer, profile_fkey, primary_key=True)
-    event_id = Column(Integer, event_type_fkey, primary_key=True)
+    profile_id = Column(UUID, profile_fkey, primary_key=True)
+    event_id = Column(UUID, event_type_fkey, primary_key=True)
 
 
 class EmitterProfile(Base):
 
     __tablename__ = 'emitter_profile'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(UUID, default=uuid4, primary_key=True)
     name = Column(String(length=64), index=True, nullable=False, unique=True)
     description = Column(Text)
 

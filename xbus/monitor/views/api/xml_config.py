@@ -32,4 +32,4 @@ def xml_config_update(request):
     load_config(xml)
 
     # TODO Implement.
-    raise HTTPNotImplemented(json_body={})
+    return {}
