@@ -124,8 +124,8 @@ class EventError(Base):
     service_fkey = ForeignKey('service.id', ondelete='CASCADE')
 
     id = Column(UUID, default=uuid4, primary_key=True)
-    envelope_uuid = Column(UUID, envelope_fkey, index=True, nullable=False)
-    event_uuid = Column(UUID, event_fkey, nullable=False)
+    envelope_id = Column(UUID, envelope_fkey, index=True, nullable=False)
+    event_id = Column(UUID, event_fkey, nullable=False)
     service_id = Column(UUID, service_fkey)
     items = Column(Text)
     message = Column(Text)
