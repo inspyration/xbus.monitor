@@ -30,7 +30,9 @@ def service_create(request):
         # Fill the record using received parameters.
         vals = request.json_body
 
-        # TODO Implement.
+        record.name = vals['name']
+        record.consumer = vals['consumer']
+        record.description = vals['description']
 
     except (KeyError, ValueError):
         raise HTTPBadRequest(
@@ -79,6 +81,7 @@ def service_update(request):
         vals = request.json_body
 
         record.name = vals['name']
+        record.consumer = vals['consumer']
         record.description = vals['description']
 
     except (KeyError, ValueError):
