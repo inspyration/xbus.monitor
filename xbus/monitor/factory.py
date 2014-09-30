@@ -3,12 +3,10 @@ from pyramid.httpexceptions import HTTPBadRequest
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import Emitter
 from xbus.monitor.models.models import EmitterProfile
-from xbus.monitor.models.models import EmitterProfileEventTypeRel
 from xbus.monitor.models.models import Envelope
 from xbus.monitor.models.models import Event
 from xbus.monitor.models.models import EventError
 from xbus.monitor.models.models import EventNode
-from xbus.monitor.models.models import EventNodeRel
 from xbus.monitor.models.models import EventType
 from xbus.monitor.models.models import Role
 from xbus.monitor.models.models import RoleActive
@@ -37,10 +35,6 @@ def emitter_profile(request):
     return _generic_record_factory(request, EmitterProfile)
 
 
-def emitter_profile_event_type(request):
-    return _generic_record_factory(request, EmitterProfileEventTypeRel)
-
-
 def envelope(request):
     return _generic_record_factory(request, Envelope)
 
@@ -55,10 +49,6 @@ def event_error(request):
 
 def event_node(request):
     return _generic_record_factory(request, EventNode)
-
-
-def event_node_link(request):
-    return _generic_record_factory(request, EventNodeRel)
 
 
 def event_type(request):
