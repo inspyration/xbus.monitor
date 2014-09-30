@@ -1,4 +1,6 @@
 import datetime
+from uuid import uuid4
+from uuid import UUID as base_UUID
 
 from sqlalchemy import (
     Column,
@@ -10,8 +12,6 @@ from sqlalchemy import (
     Enum,
     ForeignKey,
 )
-
-from uuid import uuid4
 
 from .types import UUID
 
@@ -30,10 +30,16 @@ DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 
 def serialize(value):
     """Serialize types JSON cannot handle."""
+
     if isinstance(value, datetime.date):
         return datetime.date.isoformat(value)
+
     if isinstance(value, datetime.datetime):
         return datetime.datetime.isoformat(value)
+
+    if isinstance(value, base_UUID):
+        return str(value)
+
     return value
 
 
