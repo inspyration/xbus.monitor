@@ -2,12 +2,28 @@ from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import Response
 from pyramid.view import view_config
-from sqlalchemy.exc import IntegrityError
 
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import RoleActive
 
 from .util import get_list
+
+
+def _update_record(request, record):
+    """Update the record using JSON data."""
+
+    try:
+        vals = request.json_body
+
+        record.role_id = vals['role_id']
+        record.zmqid = vals['zmqid']
+        record.ready = vals.get('ready', False)
+        record.last_act_date = vals['last_act_date']
+
+    except (KeyError, ValueError):
+        raise HTTPBadRequest(
+            json_body={"error": "Invalid data"},
+        )
 
 
 @view_config(
@@ -26,16 +42,7 @@ def role_active_create(request):
 
     record = RoleActive()
 
-    try:
-        # Fill the record using received parameters.
-        vals = request.json_body
-
-        # TODO Implement.
-
-    except (KeyError, ValueError):
-        raise HTTPBadRequest(
-            json_body={"error": "Invalid data"},
-        )
+    _update_record(request, record)
 
     DBSession.add(record)
     DBSession.flush()
@@ -73,24 +80,7 @@ def role_active_read(request):
 )
 def role_active_update(request):
     record = _get_record(request)
-
-    try:
-        # Fill the record using received parameters.
-        vals = request.json_body
-
-        record.name = vals['name']
-        record.description = vals['description']
-
-    except (KeyError, ValueError):
-        raise HTTPBadRequest(
-            json_body={"error": "Invalid data"},
-        )
-
-    except IntegrityError:
-        raise HTTPBadRequest(
-            json_body={"error": "Duplicate names not allowed"},
-        )
-
+    _update_record(request, record)
     return record.as_dict()
 
 

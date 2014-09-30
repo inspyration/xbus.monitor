@@ -2,12 +2,26 @@ from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import Response
 from pyramid.view import view_config
-from sqlalchemy.exc import IntegrityError
 
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import EventType
 
 from .util import get_list
+
+
+def _update_record(request, record):
+    """Update the record using JSON data."""
+
+    try:
+        vals = request.json_body
+
+        record.name = vals['name']
+        record.description = vals['description']
+
+    except (KeyError, ValueError):
+        raise HTTPBadRequest(
+            json_body={"error": "Invalid data"},
+        )
 
 
 @view_config(
@@ -26,27 +40,11 @@ def event_type_create(request):
 
     record = EventType()
 
-    try:
-        # Fill the record using received parameters.
-        vals = request.json_body
+    _update_record(request, record)
 
-        record.name = vals['name']
-        record.description = vals['description']
-
-    except (KeyError, ValueError):
-        raise HTTPBadRequest(
-            json_body={"error": "Invalid data"},
-        )
-
-    try:
-        DBSession.add(record)
-        DBSession.flush()
-        DBSession.refresh(record)
-
-    except IntegrityError:
-        raise HTTPBadRequest(
-            json_body={"error": "Duplicate names not allowed"},
-        )
+    DBSession.add(record)
+    DBSession.flush()
+    DBSession.refresh(record)
 
     return record.as_dict()
 
@@ -80,24 +78,7 @@ def event_type_read(request):
 )
 def event_type_update(request):
     record = _get_record(request)
-
-    try:
-        # Fill the record using received parameters.
-        vals = request.json_body
-
-        record.name = vals['name']
-        record.description = vals['description']
-
-    except (KeyError, ValueError):
-        raise HTTPBadRequest(
-            json_body={"error": "Invalid data"},
-        )
-
-    except IntegrityError:
-        raise HTTPBadRequest(
-            json_body={"error": "Duplicate names not allowed"},
-        )
-
+    _update_record(request, record)
     return record.as_dict()
 
 

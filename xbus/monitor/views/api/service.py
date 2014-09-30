@@ -2,12 +2,27 @@ from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import Response
 from pyramid.view import view_config
-from sqlalchemy.exc import IntegrityError
 
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import Service
 
 from .util import get_list
+
+
+def _update_record(request, record):
+    """Update the record using JSON data."""
+
+    try:
+        vals = request.json_body
+
+        record.name = vals['name']
+        record.consumer = vals.get('consumer', False)
+        record.description = vals['description']
+
+    except (KeyError, ValueError):
+        raise HTTPBadRequest(
+            json_body={"error": "Invalid data"},
+        )
 
 
 @view_config(
@@ -26,18 +41,7 @@ def service_create(request):
 
     record = Service()
 
-    try:
-        # Fill the record using received parameters.
-        vals = request.json_body
-
-        record.name = vals['name']
-        record.consumer = vals.get('consumer', False)
-        record.description = vals['description']
-
-    except (KeyError, ValueError):
-        raise HTTPBadRequest(
-            json_body={"error": "Invalid data"},
-        )
+    _update_record(request, record)
 
     DBSession.add(record)
     DBSession.flush()
@@ -75,25 +79,7 @@ def service_read(request):
 )
 def service_update(request):
     record = _get_record(request)
-
-    try:
-        # Fill the record using received parameters.
-        vals = request.json_body
-
-        record.name = vals['name']
-        record.consumer = vals.get('consumer', False)
-        record.description = vals['description']
-
-    except (KeyError, ValueError):
-        raise HTTPBadRequest(
-            json_body={"error": "Invalid data"},
-        )
-
-    except IntegrityError:
-        raise HTTPBadRequest(
-            json_body={"error": "Duplicate names not allowed"},
-        )
-
+    _update_record(request, record)
     return record.as_dict()
 
 
