@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 DROP TYPE IF EXISTS xbusevent_type_servicecount CASCADE;
 DROP TYPE IF EXISTS xbusevent_type_zmqids CASCADE;
 DROP TYPE IF EXISTS xbusevent_type_event_tree CASCADE;
@@ -95,7 +97,8 @@ BEGIN
 		WHERE NOT service.consumer
 	);
 	UPDATE role_active SET zmqid = NULL, ready = false;
-	UPDATE envelope SET state = 'wait' WHERE state = 'exec';
+	UPDATE envelope SET state = 'canc' WHERE state = 'emit';
+	UPDATE envelope SET state = 'stop' WHERE state = 'exec';
 END;
 $BODY$
 LANGUAGE plpgsql;
@@ -188,7 +191,7 @@ END
 $BODY$
 LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION xbusenvelope_new_event(param_evt_type character varying, param_emitter_id uuid, param_env_uuid uuid, param_evt_uuid uuid) RETURNS void AS
+CREATE OR REPLACE FUNCTION xbusenvelope_new_event(param_evt_type character varying, param_emitter_id uuid, param_env_uuid uuid, param_evt_uuid uuid, param_estimate int) RETURNS void AS
 $BODY$
 DECLARE
 	v_event_type_id uuid;
@@ -200,7 +203,7 @@ BEGIN
 	WHERE emitter.id = param_emitter_id AND event_type.name = param_evt_type;
 	IF v_event_type_id IS NULL THEN RAISE EXCEPTION 'Login %% is not allowed to post event of type %%', param_emitter_id, param_evt_type;
 	END IF;
-    INSERT INTO event (id, envelope_id, type_id, emitter_id, started_date) VALUES (param_evt_uuid, param_env_uuid, v_event_type_id, param_emitter_id, localtimestamp);
+    INSERT INTO event (id, envelope_id, type_id, emitter_id, estimated_items, started_date) VALUES (param_evt_uuid, param_env_uuid, v_event_type_id, param_emitter_id, param_estimate, localtimestamp);
     RETURN;
 END
 $BODY$
@@ -211,7 +214,18 @@ $BODY$
 BEGIN
 	LOCK envelope IN EXCLUSIVE MODE;
 	UPDATE envelope SET state = 'fail' WHERE id = param_env_uuid;
-	INSERT INTO event_error (envelope_id, event_id, service_id, items, message, error_date) VALUES (param_env_uuid, param_evt_uuid, param_service_id, param_items, param_message, localtimestamp);
+	INSERT INTO event_error (id, envelope_id, event_id, service_id, items, message, error_date) VALUES (uuid_generate_v4(), param_env_uuid, param_evt_uuid, param_service_id, param_items, param_message, localtimestamp);
+	RETURN;
+END
+$BODY$
+LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION xbusenvelope_cancel(param_env_uuid uuid, param_evt_uuid uuid, param_message text) RETURNS void AS
+$BODY$
+BEGIN
+	LOCK envelope IN EXCLUSIVE MODE;
+	UPDATE envelope SET state = 'canc' WHERE id = param_env_uuid;
+	INSERT INTO event_error (id, envelope_id, event_id, message, error_date) VALUES (uuid_generate_v4(), param_env_uuid, param_evt_uuid, param_message, localtimestamp);
 	RETURN;
 END
 $BODY$

@@ -50,7 +50,7 @@ Base = declarative_base()
 Base.as_dict = as_dict
 
 
-ENVELOPE_STATES = ['emit', 'wait', 'exec', 'done', 'fail']
+ENVELOPE_STATES = ['emit', 'canc', 'wait', 'exec', 'done', 'stop', 'fail']
 
 
 class Role(Base):
@@ -119,6 +119,8 @@ class Event(Base):
     type_id = Column(UUID, type_fkey, nullable=False)
     started_date = Column(DateTime)
     done_date = Column(DateTime)
+    estimated_items = Column(Integer)
+    sent_items = Column(Integer)
 
 
 class EventError(Base):
@@ -131,7 +133,7 @@ class EventError(Base):
 
     id = Column(UUID, default=uuid4, primary_key=True)
     envelope_id = Column(UUID, envelope_fkey, index=True, nullable=False)
-    event_id = Column(UUID, event_fkey, nullable=False)
+    event_id = Column(UUID, event_fkey)
     service_id = Column(UUID, service_fkey)
     items = Column(Text)
     message = Column(Text)
