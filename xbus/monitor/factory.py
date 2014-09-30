@@ -15,7 +15,7 @@ from xbus.monitor.models.models import Service
 
 def _get_record_id(request):
     try:
-        return int(request.matchdict.get('id'))
+        return request.matchdict.get('id')
     except:
         raise HTTPBadRequest(json_body={"error": "Invalid ID"})
 
