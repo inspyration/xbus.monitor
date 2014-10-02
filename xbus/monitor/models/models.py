@@ -2,16 +2,15 @@ import datetime
 from uuid import uuid4
 from uuid import UUID as base_UUID
 
-from sqlalchemy import (
-    Column,
-    Integer,
-    Boolean,
-    String,
-    Text,
-    DateTime,
-    Enum,
-    ForeignKey,
-)
+from sqlalchemy import Binary
+from sqlalchemy import Boolean
+from sqlalchemy import Column
+from sqlalchemy import DateTime
+from sqlalchemy import Enum
+from sqlalchemy import ForeignKey
+from sqlalchemy import Integer
+from sqlalchemy import String
+from sqlalchemy import Text
 
 from .types import UUID
 
@@ -221,3 +220,17 @@ class EmitterProfile(Base):
         secondary=EmitterProfileEventTypeRel.__table__,
         backref="emitter_profiles"
     )
+
+
+# Here follow non-Xbus-related models.
+# TODO Move elsewhere?
+
+
+class UploadDescriptor(Base):
+    """Store a definition file to describe file uploads."""
+
+    __tablename__ = 'upload_descriptor'
+
+    id = Column(UUID, default=uuid4, primary_key=True)
+    name = Column(String(length=64), index=True, nullable=False, unique=True)
+    descriptor = Column(Binary)

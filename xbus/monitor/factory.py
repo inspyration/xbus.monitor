@@ -11,6 +11,7 @@ from xbus.monitor.models.models import EventType
 from xbus.monitor.models.models import Role
 from xbus.monitor.models.models import RoleActive
 from xbus.monitor.models.models import Service
+from xbus.monitor.models.models import UploadDescriptor
 
 
 def _get_record_id(request):
@@ -65,3 +66,7 @@ def role_active(request):
 
 def service(request):
     return _generic_record_factory(request, Service)
+
+
+def upload_descriptor(request):
+    return _generic_record_factory(request, UploadDescriptor)
