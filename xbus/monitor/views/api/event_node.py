@@ -30,7 +30,7 @@ def _update_record(request, record):
     renderer='json',
 )
 def event_node_list(request):
-    return get_list('event_nodes', EventNode)
+    return get_list(EventNode)
 
 
 @view_config(

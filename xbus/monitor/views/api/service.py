@@ -30,7 +30,7 @@ def _update_record(request, record):
     renderer='json',
 )
 def service_list(request):
-    return get_list('services', Service)
+    return get_list(Service)
 
 
 @view_config(

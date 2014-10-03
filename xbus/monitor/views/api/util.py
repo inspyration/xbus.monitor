@@ -1,7 +1,7 @@
 from xbus.monitor.models.models import DBSession
 
 
-def get_list(name, sqla_model):
+def get_list(sqla_model):
     """Helper to retrieve a record list, encoded with JSON."""
     query = DBSession.query(sqla_model)
     records = query.all()

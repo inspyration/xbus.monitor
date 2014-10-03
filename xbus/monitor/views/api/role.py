@@ -30,7 +30,7 @@ def _update_record(request, record):
     renderer='json',
 )
 def role_list(request):
-    return get_list('roles', Role)
+    return get_list(Role)
 
 
 @view_config(

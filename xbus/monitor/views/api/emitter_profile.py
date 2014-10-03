@@ -29,7 +29,7 @@ def _update_record(request, record):
     renderer='json',
 )
 def emitter_profile_list(request):
-    return get_list('emitter_profiles', EmitterProfile)
+    return get_list(EmitterProfile)
 
 
 @view_config(
