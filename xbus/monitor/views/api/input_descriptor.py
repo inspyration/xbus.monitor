@@ -4,7 +4,7 @@ from pyramid.response import Response
 from pyramid.view import view_config
 
 from xbus.monitor.models.models import DBSession
-from xbus.monitor.models.models import UploadDescriptor
+from xbus.monitor.models.models import InputDescriptor
 
 from .util import get_list
 
@@ -24,20 +24,20 @@ def _update_record(request, record):
 
 
 @view_config(
-    route_name='upload_descriptor_list',
+    route_name='input_descriptor_list',
     renderer='json',
 )
-def upload_descriptor_list(request):
-    return get_list('upload_descriptors', UploadDescriptor)
+def input_descriptor_list(request):
+    return get_list('input_descriptors', InputDescriptor)
 
 
 @view_config(
-    route_name='upload_descriptor_create',
+    route_name='input_descriptor_create',
     renderer='json',
 )
-def upload_descriptor_create(request):
+def input_descriptor_create(request):
 
-    record = UploadDescriptor()
+    record = InputDescriptor()
 
     _update_record(request, record)
 
@@ -52,7 +52,7 @@ def _get_record(request):
     if request.context is None:
         raise HTTPNotFound(
             json_body={
-                "error": "Upload descriptor ID {id} not found".format(
+                "error": "Input descriptor ID {id} not found".format(
                     id=request.matchdict.get('id')
                 )
             },
@@ -61,32 +61,32 @@ def _get_record(request):
 
 
 @view_config(
-    route_name='upload_descriptor',
+    route_name='input_descriptor',
     request_method='GET',
     renderer='json',
 )
-def upload_descriptor_read(request):
+def input_descriptor_read(request):
     record = _get_record(request)
     return record.as_dict()
 
 
 @view_config(
-    route_name='upload_descriptor',
+    route_name='input_descriptor',
     request_method='PUT',
     renderer='json',
 )
-def upload_descriptor_update(request):
+def input_descriptor_update(request):
     record = _get_record(request)
     _update_record(request, record)
     return record.as_dict()
 
 
 @view_config(
-    route_name='upload_descriptor',
+    route_name='input_descriptor',
     request_method='DELETE',
     renderer='json',
 )
-def upload_descriptor_delete(request):
+def input_descriptor_delete(request):
     record = _get_record(request)
     DBSession.delete(record)
 

@@ -67,10 +67,10 @@ def main(global_config, **settings):
     _add_api_routes(config, 'event_error')
     _add_api_routes(config, 'event_node')
     _add_api_routes(config, 'event_type')
+    _add_api_routes(config, 'input_descriptor')
     _add_api_routes(config, 'role')
     _add_api_routes(config, 'role_active')
     _add_api_routes(config, 'service')
-    _add_api_routes(config, 'upload_descriptor')
 
     config.add_route('xml_config', '/api/xml_config')
 

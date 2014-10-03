@@ -8,10 +8,10 @@ from xbus.monitor.models.models import Event
 from xbus.monitor.models.models import EventError
 from xbus.monitor.models.models import EventNode
 from xbus.monitor.models.models import EventType
+from xbus.monitor.models.models import InputDescriptor
 from xbus.monitor.models.models import Role
 from xbus.monitor.models.models import RoleActive
 from xbus.monitor.models.models import Service
-from xbus.monitor.models.models import UploadDescriptor
 
 
 def _get_record_id(request):
@@ -56,6 +56,10 @@ def event_type(request):
     return _generic_record_factory(request, EventType)
 
 
+def input_descriptor(request):
+    return _generic_record_factory(request, InputDescriptor)
+
+
 def role(request):
     return _generic_record_factory(request, Role)
 
@@ -66,7 +70,3 @@ def role_active(request):
 
 def service(request):
     return _generic_record_factory(request, Service)
-
-
-def upload_descriptor(request):
-    return _generic_record_factory(request, UploadDescriptor)

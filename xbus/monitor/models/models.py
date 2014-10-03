@@ -226,10 +226,10 @@ class EmitterProfile(Base):
 # TODO Move elsewhere?
 
 
-class UploadDescriptor(Base):
-    """Store a definition file to describe file uploads."""
+class InputDescriptor(Base):
+    """Store a descriptor used when sending data to Xbus."""
 
-    __tablename__ = 'upload_descriptor'
+    __tablename__ = 'input_descriptor'
 
     id = Column(UUID, default=uuid4, primary_key=True)
     name = Column(String(length=64), index=True, nullable=False, unique=True)
