@@ -120,7 +120,7 @@ def event_node_rel_add(request):
             json_body={"error": "Event node ID {id} not found".format(id=rid)},
         )
     rel_list.append(added_record)
-    return added_record
+    return added_record.as_dict()
 
 
 @view_config(
@@ -147,5 +147,10 @@ def event_node_rel_delete(request):
         raise HTTPNotFound(
             json_body={"error": "Event node ID {id} not found".format(id=rid)},
         )
-    rel_list.remove(removed_record)
+    try:
+        rel_list.remove(removed_record)
+    except ValueError:
+        raise HTTPBadRequest(
+            json_body={"error": "Object is not in the relationship"},
+        )
     return Response(status_int=204, json_body={})
