@@ -31,7 +31,7 @@ def _update_record(request, record):
     renderer='json',
 )
 def role_active_list(request):
-    return get_list(RoleActive)
+    return get_list(RoleActive, request.GET)
 
 
 @view_config(

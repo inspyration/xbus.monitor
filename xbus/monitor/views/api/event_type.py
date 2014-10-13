@@ -29,7 +29,7 @@ def _update_record(request, record):
     renderer='json',
 )
 def event_type_list(request):
-    return get_list(EventType)
+    return get_list(EventType, request.GET)
 
 
 @view_config(

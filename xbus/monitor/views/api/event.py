@@ -11,7 +11,7 @@ from .util import get_list
     renderer='json',
 )
 def event_list(request):
-    return get_list(Event)
+    return get_list(Event, request.GET)
 
 
 def _get_record(request):

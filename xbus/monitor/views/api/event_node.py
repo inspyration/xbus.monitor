@@ -30,7 +30,7 @@ def _update_record(request, record):
     renderer='json',
 )
 def event_node_list(request):
-    return get_list(EventNode)
+    return get_list(EventNode, request.GET)
 
 
 @view_config(
@@ -119,7 +119,12 @@ def event_node_rel_add(request):
         raise HTTPNotFound(
             json_body={"error": "Event node ID {id} not found".format(id=rid)},
         )
-    rel_list.append(added_record)
+    if added_record not in rel_list:
+        rel_list.append(added_record)
+    else:
+        raise HTTPBadRequest(
+            json_body={"error": "Object is already in the relationship"},
+        )
     return added_record.as_dict()
 
 
@@ -147,10 +152,31 @@ def event_node_rel_delete(request):
         raise HTTPNotFound(
             json_body={"error": "Event node ID {id} not found".format(id=rid)},
         )
-    try:
+    if removed_record in rel_list:
         rel_list.remove(removed_record)
-    except ValueError:
+    else:
         raise HTTPBadRequest(
             json_body={"error": "Object is not in the relationship"},
         )
     return Response(status_int=204, json_body={})
+
+
+@view_config(
+    route_name='event_node_rel_list',
+    request_method='GET',
+    renderer='json',
+)
+def event_node_rel_list(request):
+
+    record = _get_record(request)
+    rel_name = request.matchdict.get('rel')
+    rel = record.__mapper__.get_property(rel_name)
+    rel_list = getattr(record, rel_name, None)
+    if rel is None or rel_list is None or not hasattr(rel_list, 'filter'):
+        raise HTTPBadRequest(
+            json_body={
+                "error": "Relationship {} does not exist".format(rel_name)
+            },
+        )
+
+    return get_list(rel.mapper, request.GET, rel_list)

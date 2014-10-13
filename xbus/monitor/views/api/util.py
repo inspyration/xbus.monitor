@@ -1,10 +1,11 @@
 from ...models.models import DBSession
 
 
-def get_list(sqla_model, params=None):
+def get_list(sqla_model, params=None, query=None):
     """Helper to retrieve a record list, encoded with JSON."""
-    query = DBSession.query(sqla_model)
-    if params == None:
+    if query is None:
+        query = DBSession.query(sqla_model)
+    if params is None:
         params = {}
     for param_op, value in params.iteritems():
 
@@ -14,7 +15,11 @@ def get_list(sqla_model, params=None):
             param, op = param_op, 'eq'
         else:
             param, op = param_op, 'is'
-        col = getattr(sqla_model, param, None)
+
+        if hasattr(sqla_model, 'c'):
+            col = sqla_model.c.get(param, None)
+        else:
+            col = getattr(sqla_model, param, None)
         if col is None:
             continue
 

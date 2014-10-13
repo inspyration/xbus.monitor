@@ -30,7 +30,7 @@ def _update_record(request, record):
     renderer='json',
 )
 def emitter_list(request):
-    return get_list(Emitter)
+    return get_list(Emitter, request.GET)
 
 
 @view_config(

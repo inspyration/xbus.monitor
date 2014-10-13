@@ -31,7 +31,7 @@ def _update_record(request, record):
     renderer='json',
 )
 def envelope_list(request):
-    return get_list(Envelope)
+    return get_list(Envelope, request.GET)
 
 
 @view_config(

@@ -28,7 +28,7 @@ def _update_record(request, record):
     renderer='json',
 )
 def input_descriptor_list(request):
-    return get_list(InputDescriptor)
+    return get_list(InputDescriptor, request.GET)
 
 
 @view_config(

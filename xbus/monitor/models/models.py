@@ -12,17 +12,16 @@ from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import Text
 
-from .types import UUID
+from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import relationship
+from sqlalchemy.orm import backref
 
 from sqlalchemy.ext.declarative import declarative_base
 
-from sqlalchemy.orm import (
-    scoped_session,
-    sessionmaker,
-    relationship
-)
-
 from zope.sqlalchemy import ZopeTransactionExtension
+
+from .types import UUID
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 
@@ -63,7 +62,7 @@ class Role(Base):
     service_id = Column(UUID, service_fkey, index=True, nullable=False)
     last_logged = Column(DateTime)
 
-    service = relationship('Service', backref='roles')
+    service = relationship('Service', backref=backref('roles', lazy="dynamic"))
 
 
 class RoleActive(Base):
@@ -172,13 +171,13 @@ class EventNode(Base):
     start = Column(Boolean, server_default='FALSE')
 
     service = relationship('Service')
-    type = relationship('EventType', backref='nodes')
+    type = relationship('EventType', backref=backref('nodes', lazy="dynamic"))
     children = relationship(
-        'EventNode',
+        'EventNode', lazy='dynamic',
         secondary=EventNodeRel.__table__,
         primaryjoin=id == EventNodeRel.parent_id,
         secondaryjoin=id == EventNodeRel.child_id,
-        backref="parents"
+        backref=backref('parents', lazy='dynamic')
     )
 
 
@@ -193,7 +192,10 @@ class Emitter(Base):
     profile_id = Column(UUID, profile_fkey, nullable=False)
     last_emit = Column(DateTime)
 
-    profile = relationship('EmitterProfile', backref='emitters')
+    profile = relationship(
+        'EmitterProfile',
+        backref=backref('emitters', lazy='dynamic')
+    )
 
 
 class EmitterProfileEventTypeRel(Base):
@@ -216,9 +218,9 @@ class EmitterProfile(Base):
     description = Column(Text)
 
     event_types = relationship(
-        "EventType",
+        'EventType', lazy='dynamic',
         secondary=EmitterProfileEventTypeRel.__table__,
-        backref="emitter_profiles"
+        backref=backref('emitter_profiles', lazy='dynamic')
     )
 
 
