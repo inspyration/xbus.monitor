@@ -29,7 +29,8 @@ def _update_record(request, record):
     renderer='json',
 )
 def emitter_profile_list(request):
-    return get_list(EmitterProfile)
+    print request.GET
+    return get_list(EmitterProfile, request.GET)
 
 
 @view_config(

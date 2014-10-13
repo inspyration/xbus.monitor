@@ -12,6 +12,7 @@ Thumbs.db
 *.pstat
 *.calltree
 *.swp
+*.orig
 .tmp_*
 env-*/*
 bin/*

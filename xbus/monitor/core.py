@@ -13,19 +13,36 @@ def _add_api_routes(config, model):
     """
 
     config.add_route(
-        '%s_list' % model,
-        '/api/%s' % model,
+        '{model}_list'.format(model=model),
+        '/api/{model}'.format(model=model),
         request_method='GET',
     )
     config.add_route(
-        '%s_create' % model,
-        '/api/%s' % model,
+        '{model}_create'.format(model=model),
+        '/api/{model}'.format(model=model),
         request_method='POST',
     )
     config.add_route(
         model,
-        '/api/%s/{id}' % model,
-        factory='xbus.monitor.factory.%s' % model,
+        '/api/{model}/{{id}}'.format(model=model),
+        factory='xbus.monitor.factory.{model}'.format(model=model),
+    )
+    config.add_route(
+        '{model}_rel_list'.format(model=model),
+        '/api/{model}/{{id}}/{{rel}}'.format(model=model),
+        request_method='GET',
+        factory='xbus.monitor.factory.{model}'.format(model=model),
+    )
+    config.add_route(
+        '{model}_rel_create'.format(model=model),
+        '/api/{model}/{{id}}/{{rel}}'.format(model=model),
+        request_method='POST',
+        factory='xbus.monitor.factory.{model}'.format(model=model),
+    )
+    config.add_route(
+        '{model}_rel'.format(model=model),
+        '/api/{model}/{{id}}/{{rel}}/{{rid}}'.format(model=model),
+        factory='xbus.monitor.factory.{model}'.format(model=model),
     )
 
 
