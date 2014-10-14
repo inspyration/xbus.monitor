@@ -163,7 +163,6 @@ def event_node_rel_delete(request):
 
 @view_config(
     route_name='event_node_rel_list',
-    request_method='GET',
     renderer='json',
 )
 def event_node_rel_list(request):
@@ -180,3 +179,25 @@ def event_node_rel_list(request):
         )
 
     return get_list(rel.mapper, request.GET, rel_list)
+
+
+@view_config(
+    route_name='event_node_rel_create',
+    renderer='json',
+)
+def event_node_rel_create(request):
+
+    record = _get_record(request)
+    rel_name = request.matchdict.get('rel')
+    rel = record.__mapper__.get_property(rel_name)
+    rel_list = getattr(record, rel_name, None)
+    if rel is None or rel_list is None or not hasattr(rel_list, 'filter'):
+        raise HTTPBadRequest(
+            json_body={
+                "error": "Relationship {} does not exist".format(rel_name)
+            },
+        )
+
+    created_record = rel.mapper.entity(**request.json_body)
+    rel_list.append(created_record)
+    return created_record.as_dict()
