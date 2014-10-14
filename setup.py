@@ -17,8 +17,8 @@ requires = [
     'transaction',
     'waitress',
     'zope.sqlalchemy',
-#    'pyzmq',
-#    'msgpack-python',
+    'pyzmq',
+    'msgpack-python',
 ]
 
 setup(
