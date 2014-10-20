@@ -92,3 +92,111 @@ def emitter_profile_delete(request):
     DBSession.delete(record)
 
     return Response(status_int=204, json_body={})
+
+
+@view_config(
+    route_name='emitter_profile_rel',
+    request_method='PUT',
+    renderer='json',
+)
+def emitter_profile_rel_add(request):
+
+    record = _get_record(request)
+    rel_name, rid = request.matchdict.get('rel'), request.matchdict.get('rid')
+    rel = record.__mapper__.get_property(rel_name)
+    rel_list = getattr(record, rel_name, None)
+    if rel is None or rel_list is None or not hasattr(rel_list, 'append'):
+        raise HTTPBadRequest(
+            json_body={
+                "error": "Relationship {} does not exist".format(rel_name)
+            },
+        )
+
+    query = DBSession.query(rel.mapper)
+    added_record = query.get(rid)
+    if added_record is None:
+        raise HTTPNotFound(
+            json_body={"error": "Event node ID {id} not found".format(id=rid)},
+        )
+    if added_record not in rel_list:
+        rel_list.append(added_record)
+    else:
+        raise HTTPBadRequest(
+            json_body={"error": "Object is already in the relationship"},
+        )
+    return added_record.as_dict()
+
+
+@view_config(
+    route_name='emitter_profile_rel',
+    request_method='DELETE',
+    renderer='json',
+)
+def emitter_profile_rel_remove(request):
+
+    record = _get_record(request)
+    rel_name, rid = request.matchdict.get('rel'), request.matchdict.get('rid')
+    rel = record.__mapper__.get_property(rel_name)
+    rel_list = getattr(record, rel_name, None)
+    if rel is None or rel_list is None or not hasattr(rel_list, 'append'):
+        raise HTTPBadRequest(
+            json_body={
+                "error": "Relationship {} does not exist".format(rel_name)
+            },
+        )
+
+    query = DBSession.query(rel.mapper)
+    removed_record = query.get(rid)
+    if removed_record is None:
+        raise HTTPNotFound(
+            json_body={"error": "Event node ID {id} not found".format(id=rid)},
+        )
+    if removed_record in rel_list:
+        rel_list.remove(removed_record)
+    else:
+        raise HTTPBadRequest(
+            json_body={"error": "Object is not in the relationship"},
+        )
+    return Response(status_int=204, json_body={})
+
+
+@view_config(
+    route_name='emitter_profile_rel_list',
+    renderer='json',
+)
+def emitter_profile_rel_list(request):
+
+    record = _get_record(request)
+    rel_name = request.matchdict.get('rel')
+    rel = record.__mapper__.get_property(rel_name)
+    rel_list = getattr(record, rel_name, None)
+    if rel is None or rel_list is None or not hasattr(rel_list, 'filter'):
+        raise HTTPBadRequest(
+            json_body={
+                "error": "Relationship {} does not exist".format(rel_name)
+            },
+        )
+
+    return get_list(rel.mapper, request.GET, rel_list)
+
+
+@view_config(
+    route_name='emitter_profile_rel_create',
+    renderer='json',
+)
+def emitter_profile_rel_create(request):
+
+    record = _get_record(request)
+    rel_name = request.matchdict.get('rel')
+    rel = record.__mapper__.get_property(rel_name)
+    rel_list = getattr(record, rel_name, None)
+    if rel is None or rel_list is None or not hasattr(rel_list, 'filter'):
+        raise HTTPBadRequest(
+            json_body={
+                "error": "Relationship {} does not exist".format(rel_name)
+            },
+        )
+
+    created_record = rel.mapper.entity(**request.json_body)
+    rel_list.append(created_record)
+    return created_record.as_dict()

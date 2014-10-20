@@ -133,7 +133,7 @@ def event_node_rel_add(request):
     request_method='DELETE',
     renderer='json',
 )
-def event_node_rel_delete(request):
+def event_node_rel_remove(request):
 
     record = _get_record(request)
     rel_name, rid = request.matchdict.get('rel'), request.matchdict.get('rid')
