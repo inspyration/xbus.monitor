@@ -29,6 +29,7 @@ Create the xbus user and database::
   $ docker run -d --name="xbus_postgresql_1" xcgd/postgresql
   $ docker run --rm -i -t --link xbus_postgresql_1:db xcgd/postgresql /bin/bash
   $ echo "create user xbus with password 'xbus'; create database xbus with owner = xbus" | psql -h db -p 5432 -U postgres
+  $ echo 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp"' | psql -h db -p 5432 -U postgres
   $ exit
   $ docker stop xbus_postgresql_1
 

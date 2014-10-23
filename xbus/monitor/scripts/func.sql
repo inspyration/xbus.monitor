@@ -1,5 +1,3 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 DROP TYPE IF EXISTS xbusevent_type_servicecount CASCADE;
 DROP TYPE IF EXISTS xbusevent_type_zmqids CASCADE;
 DROP TYPE IF EXISTS xbusevent_type_event_tree CASCADE;
