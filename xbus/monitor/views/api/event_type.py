@@ -190,7 +190,7 @@ def event_type_graph(request):
 
     record = _get_record(request)
     nodes = list(record.nodes)
-    res, by_id = {}, {}
+    res, by_id, parents_cache = {}, {}, {}
 
     i, loop, ref = 0, 0, 'A'
     while nodes:
@@ -206,15 +206,19 @@ def event_type_graph(request):
             )
 
         node = nodes[i]
+        parents = parents_cache.get(node.id)
+        if parents is None:
+            parents = [p.id for p in node.parents]
+
         loop += 1
         i += 1
-        if not all(p.id in by_id for p in node.parents):
+        if not all(p in by_id for p in parents):
             continue
 
         parent_refs = []
         up_depth = 0
-        for parent in node.parents:
-            parent_ref = by_id[parent.id]
+        for parent in parents:
+            parent_ref = by_id[parent]
             parent_refs.append(parent_ref)
             parent_depth = res[parent_ref]['depth']
             if parent_depth > up_depth:
