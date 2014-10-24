@@ -170,6 +170,8 @@ def event_type_rel_list(request):
 
     record = _get_record(request)
     rel_name = request.matchdict.get('rel')
+    if rel_name == 'nodes':
+        return event_type_graph(request)
     rel = record.__mapper__.get_property(rel_name)
     rel_list = getattr(record, rel_name, None)
     if rel is None or rel_list is None or not hasattr(rel_list, 'filter'):
@@ -244,7 +246,9 @@ def event_type_graph(request):
                 ret = False
         ref = 'A' + new_ref if ret else new_ref
 
-    return res
+    list_res = [dict(ref=key, **val) for key, val in res.iteritems()]
+    list_res.sort(key=lambda self: self['depth'])
+    return list_res
 
 
 @view_config(
