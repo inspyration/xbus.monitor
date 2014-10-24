@@ -1,10 +1,12 @@
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.httpexceptions import HTTPNotFound
+from pyramid.httpexceptions import HTTPInternalServerError
 from pyramid.response import Response
 from pyramid.view import view_config
 
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import EventType
+from xbus.monitor.models.models import EventNode
 
 from .util import get_list
 
@@ -178,6 +180,67 @@ def event_type_rel_list(request):
         )
 
     return get_list(rel.mapper, request.GET, rel_list)
+
+
+@view_config(
+    route_name='event_type_graph',
+    renderer='json',
+)
+def event_type_graph(request):
+
+    record = _get_record(request)
+    nodes = list(record.nodes)
+    res, by_id = {}, {}
+
+    i, loop, ref = 0, 0, 'A'
+    while nodes:
+        if i >= len(nodes):
+            i = 0
+        if loop >= len(nodes):
+            raise HTTPInternalServerError(
+                json_body={
+                    "error": "Invalid event graph",
+                    "partial_res": res,
+                    "remaining_node_ids": [str(node.id) for node in nodes]
+                }
+            )
+
+        node = nodes[i]
+        loop += 1
+        i += 1
+        if not all(p.id in by_id for p in node.parents):
+            continue
+
+        parent_refs = []
+        up_depth = 0
+        for parent in node.parents:
+            parent_ref = by_id[parent.id]
+            parent_refs.append(parent_ref)
+            parent_depth = res[parent_ref]['depth']
+            if parent_depth > up_depth:
+                up_depth = parent_depth
+
+        node_dict = node.as_dict()
+        node_dict['depth'] = up_depth + 1
+        node_dict['parent_refs'] = parent_refs
+        by_id[node.id] = ref
+        res[ref] = node_dict
+
+        del nodes[i - 1]
+        loop = 0
+        new_ref = ""
+        ret = True
+        for c in ref[::-1]:
+            ordc = ord(c) + 1 if ret else ord(c)
+            if ordc > ord('Z'):
+                new_ref = 'A' + new_ref
+                ret = True
+            else:
+                new_ref = chr(ordc) + new_ref
+                ret = False
+        ref = 'A' + new_ref if ret else new_ref
+
+    return res
 
 
 @view_config(

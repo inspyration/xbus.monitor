@@ -74,6 +74,10 @@ def main(global_config, **settings):
 
     config.add_route('home', '/')
     config.add_route('xml_config_ui', '/xml_config')
+    config.add_route(
+        'event_type_graph', '/api/event_type/{id}/graph',
+        factory='xbus.monitor.factory.event_type'
+    )
 
     # REST API exposed with JSON.
 
