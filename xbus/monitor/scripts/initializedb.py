@@ -11,7 +11,7 @@ from pyramid.paster import (
 
 from ..models.models import (
     DBSession,
-    BaseModel,
+    Base,
 )
 
 
@@ -41,8 +41,8 @@ def main(argv=sys.argv):
 
     here = os.path.abspath(os.path.dirname(__file__))
     if args.clear:
-        BaseModel.metadata.drop_all(engine)
-    BaseModel.metadata.create_all(engine)
+        Base.metadata.drop_all(engine)
+    Base.metadata.create_all(engine)
     with open(os.path.join(here, 'func.sql')) as f:
         engine.execute(f.read())
     if args.demo:
@@ -50,7 +50,7 @@ def main(argv=sys.argv):
         seq_sql = "SELECT setval('{table}_id_seq'," \
                   "(SELECT MAX(id) FROM {table}))"
         demo_dir = os.path.join(here, args.demo)
-        for t in BaseModel.metadata.sorted_tables:
+        for t in Base.metadata.sorted_tables:
             table = t.name
             fpath = os.path.join(demo_dir, "{table}.csv".format(table=table))
             if os.path.isfile(fpath):
