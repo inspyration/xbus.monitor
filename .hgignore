@@ -19,6 +19,7 @@ bin/*
 dist/*
 build/*
 development.ini
+production.ini
 devdata.db
 *.egg-info/*
 .idea
