@@ -4,7 +4,7 @@ from sqlalchemy import engine_from_config
 
 from .i18n import init_i18n
 from .models.models import DBSession
-from .models.models import Base
+from .models.models import BaseModel
 
 
 def _add_api_routes(config, model):
@@ -60,7 +60,6 @@ def main(global_config, **settings):
         settings['sqlalchemy.url'] = db_url.format(socket=pg_socket)
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
-    Base.metadata.bind = engine
 
     config = Configurator(settings=settings)
 
@@ -90,7 +89,6 @@ def main(global_config, **settings):
     _add_api_routes(config, 'event_type')
     _add_api_routes(config, 'input_descriptor')
     _add_api_routes(config, 'role')
-    _add_api_routes(config, 'role_active')
     _add_api_routes(config, 'service')
 
     config.add_route('xml_config', '/api/xml_config')

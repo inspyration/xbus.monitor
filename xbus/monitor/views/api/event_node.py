@@ -17,7 +17,7 @@ def _update_record(request, record):
 
         record.service_id = vals['service_id']
         record.type_id = vals['type_id']
-        record.start = vals.get('start', False)
+        record.is_start = vals.get('is_start', False)
 
     except (KeyError, ValueError):
         raise HTTPBadRequest(
@@ -104,7 +104,7 @@ def event_node_rel_add(request):
 
     record = _get_record(request)
     rel_name, rid = request.matchdict.get('rel'), request.matchdict.get('rid')
-    rel = record.__mapper__.get_property(rel_name)
+    rel = record.get_mapper().get_property(rel_name)
     rel_list = getattr(record, rel_name, None)
     if rel is None or rel_list is None or not hasattr(rel_list, 'append'):
         raise HTTPBadRequest(
@@ -137,7 +137,7 @@ def event_node_rel_remove(request):
 
     record = _get_record(request)
     rel_name, rid = request.matchdict.get('rel'), request.matchdict.get('rid')
-    rel = record.__mapper__.get_property(rel_name)
+    rel = record.get_mapper().get_property(rel_name)
     rel_list = getattr(record, rel_name, None)
     if rel is None or rel_list is None or not hasattr(rel_list, 'append'):
         raise HTTPBadRequest(
@@ -169,7 +169,7 @@ def event_node_rel_list(request):
 
     record = _get_record(request)
     rel_name = request.matchdict.get('rel')
-    rel = record.__mapper__.get_property(rel_name)
+    rel = record.get_mapper().get_property(rel_name)
     rel_list = getattr(record, rel_name, None)
     if rel is None or rel_list is None or not hasattr(rel_list, 'filter'):
         raise HTTPBadRequest(
@@ -189,7 +189,7 @@ def event_node_rel_create(request):
 
     record = _get_record(request)
     rel_name = request.matchdict.get('rel')
-    rel = record.__mapper__.get_property(rel_name)
+    rel = record.get_mapper().get_property(rel_name)
     rel_list = getattr(record, rel_name, None)
     if rel is None or rel_list is None or not hasattr(rel_list, 'filter'):
         raise HTTPBadRequest(

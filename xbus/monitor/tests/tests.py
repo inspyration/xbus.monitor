@@ -12,11 +12,11 @@ class TestMyViewSuccessCondition(unittest.TestCase):
         from sqlalchemy import create_engine
         engine = create_engine('sqlite://')
         from ..models.models import (
-            Base,
+            BaseModel,
             MyModel,
             )
         DBSession.configure(bind=engine)
-        Base.metadata.create_all(engine)
+        BaseModel.metadata.create_all(engine)
         with transaction.manager:
             model = MyModel(name='one', value=55)
             DBSession.add(model)
@@ -39,7 +39,7 @@ class TestMyViewFailureCondition(unittest.TestCase):
         from sqlalchemy import create_engine
         engine = create_engine('sqlite://')
         from ..models.models import (
-            Base,
+            BaseModel,
             MyModel,
             )
         DBSession.configure(bind=engine)

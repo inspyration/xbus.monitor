@@ -10,7 +10,6 @@ from xbus.monitor.models.models import EventNode
 from xbus.monitor.models.models import EventType
 from xbus.monitor.models.models import InputDescriptor
 from xbus.monitor.models.models import Role
-from xbus.monitor.models.models import RoleActive
 from xbus.monitor.models.models import Service
 
 
@@ -62,10 +61,6 @@ def input_descriptor(request):
 
 def role(request):
     return _generic_record_factory(request, Role)
-
-
-def role_active(request):
-    return _generic_record_factory(request, RoleActive)
 
 
 def service(request):

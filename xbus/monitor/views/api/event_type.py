@@ -105,7 +105,7 @@ def event_type_rel_add(request):
 
     record = _get_record(request)
     rel_name, rid = request.matchdict.get('rel'), request.matchdict.get('rid')
-    rel = record.__mapper__.get_property(rel_name)
+    rel = record.get_mapper().get_property(rel_name)
     rel_list = getattr(record, rel_name, None)
     if rel is None or rel_list is None or not hasattr(rel_list, 'append'):
         raise HTTPBadRequest(
@@ -138,7 +138,7 @@ def event_type_rel_remove(request):
 
     record = _get_record(request)
     rel_name, rid = request.matchdict.get('rel'), request.matchdict.get('rid')
-    rel = record.__mapper__.get_property(rel_name)
+    rel = record.get_mapper().get_property(rel_name)
     rel_list = getattr(record, rel_name, None)
     if rel is None or rel_list is None or not hasattr(rel_list, 'append'):
         raise HTTPBadRequest(
@@ -172,7 +172,7 @@ def event_type_rel_list(request):
     rel_name = request.matchdict.get('rel')
     if rel_name == 'nodes':
         return event_type_graph(request)
-    rel = record.__mapper__.get_property(rel_name)
+    rel = record.get_mapper().get_property(rel_name)
     rel_list = getattr(record, rel_name, None)
     if rel is None or rel_list is None or not hasattr(rel_list, 'filter'):
         raise HTTPBadRequest(
@@ -259,7 +259,7 @@ def event_type_rel_create(request):
 
     record = _get_record(request)
     rel_name = request.matchdict.get('rel')
-    rel = record.__mapper__.get_property(rel_name)
+    rel = record.get_mapper().get_property(rel_name)
     rel_list = getattr(record, rel_name, None)
     if rel is None or rel_list is None or not hasattr(rel_list, 'filter'):
         raise HTTPBadRequest(

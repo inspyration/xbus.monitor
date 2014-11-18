@@ -103,7 +103,7 @@ def emitter_profile_rel_add(request):
 
     record = _get_record(request)
     rel_name, rid = request.matchdict.get('rel'), request.matchdict.get('rid')
-    rel = record.__mapper__.get_property(rel_name)
+    rel = record.get_mapper().get_property(rel_name)
     rel_list = getattr(record, rel_name, None)
     if rel is None or rel_list is None or not hasattr(rel_list, 'append'):
         raise HTTPBadRequest(
@@ -136,7 +136,7 @@ def emitter_profile_rel_remove(request):
 
     record = _get_record(request)
     rel_name, rid = request.matchdict.get('rel'), request.matchdict.get('rid')
-    rel = record.__mapper__.get_property(rel_name)
+    rel = record.get_mapper().get_property(rel_name)
     rel_list = getattr(record, rel_name, None)
     if rel is None or rel_list is None or not hasattr(rel_list, 'append'):
         raise HTTPBadRequest(
@@ -168,7 +168,7 @@ def emitter_profile_rel_list(request):
 
     record = _get_record(request)
     rel_name = request.matchdict.get('rel')
-    rel = record.__mapper__.get_property(rel_name)
+    rel = record.get_mapper().get_property(rel_name)
     rel_list = getattr(record, rel_name, None)
     if rel is None or rel_list is None or not hasattr(rel_list, 'filter'):
         raise HTTPBadRequest(
@@ -188,7 +188,7 @@ def emitter_profile_rel_create(request):
 
     record = _get_record(request)
     rel_name = request.matchdict.get('rel')
-    rel = record.__mapper__.get_property(rel_name)
+    rel = record.get_mapper().get_property(rel_name)
     rel_list = getattr(record, rel_name, None)
     if rel is None or rel_list is None or not hasattr(rel_list, 'filter'):
         raise HTTPBadRequest(

@@ -16,7 +16,7 @@ def _update_record(request, record):
         vals = request.json_body
 
         record.name = vals['name']
-        record.consumer = vals.get('consumer', False)
+        record.is_consumer = vals.get('is_consumer', False)
         record.description = vals['description']
 
     except (KeyError, ValueError):
