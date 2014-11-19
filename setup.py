@@ -45,8 +45,6 @@ setup(
     entry_points="""\
     [paste.app_factory]
     main = xbus.monitor:main
-    [console_scripts]
-    initialize_monitor_db = xbus.monitor.scripts.initializedb:main
     """,
     message_extractors={'xbus.monitor': [
         ('xbus/monitor/**.py', 'lingua_python', None),
