@@ -5,6 +5,7 @@ from pyramid.view import view_config
 
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import Emitter
+from xbus.broker.model import gen_password
 
 from .util import get_list
 
@@ -17,7 +18,6 @@ def _update_record(request, record):
 
         record.login = vals['login']
         record.profile_id = vals['profile_id']
-        record.last_emit = vals['last_emit']
 
     except (KeyError, ValueError):
         raise HTTPBadRequest(
@@ -42,6 +42,7 @@ def emitter_create(request):
     record = Emitter()
 
     _update_record(request, record)
+    record.password = gen_password(request.json_body['password'])
 
     DBSession.add(record)
     DBSession.flush()
@@ -69,7 +70,9 @@ def _get_record(request):
 )
 def emitter_read(request):
     record = _get_record(request)
-    return record.as_dict()
+    res = record.as_dict()
+    del res['password']
+    return res
 
 
 @view_config(

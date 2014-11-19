@@ -5,6 +5,7 @@ from pyramid.view import view_config
 
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import Role
+from xbus.broker.model import gen_password
 
 from .util import get_list
 
@@ -15,9 +16,10 @@ def _update_record(request, record):
     try:
         vals = request.json_body
 
+        print(vals)
+
         record.login = vals['login']
         record.service_id = vals['service_id']
-        record.last_logged = vals['last_logged']
 
     except (KeyError, ValueError):
         raise HTTPBadRequest(
@@ -42,6 +44,7 @@ def role_create(request):
     record = Role()
 
     _update_record(request, record)
+    record.password = gen_password(request.json_body['password'])
 
     DBSession.add(record)
     DBSession.flush()
@@ -69,7 +72,9 @@ def _get_record(request):
 )
 def role_read(request):
     record = _get_record(request)
-    return record.as_dict()
+    res = record.as_dict()
+    del res['password']
+    return res
 
 
 @view_config(
