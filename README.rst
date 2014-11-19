@@ -34,8 +34,11 @@ Create the xbus user and database::
   $ docker stop xbus_postgresql_1
 
 
-initialize the database::
+Initialize the database::
 
+  $ fig run --rm monitor setup_xbusbroker
+
+[Deprecated]::
   $ fig run --rm monitor initialize_monitor_db /opt/xbus/monitor/etc/production.ini
 
 Start Xbus::
@@ -50,6 +53,9 @@ Install without Docker
 
   $ cd <directory containing this file>
   $ $VENV/bin/python setup.py develop
+  $ $VENV/bin/setup_xbusbroker
+
+[Deprecated]::
   $ $VENV/bin/initialize_monitor_db development.ini
 
 Configure
