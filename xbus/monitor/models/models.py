@@ -1,16 +1,5 @@
 import datetime
-from uuid import uuid4
 from uuid import UUID as base_UUID
-
-from sqlalchemy import Binary
-from sqlalchemy import Boolean
-from sqlalchemy import Column
-from sqlalchemy import DateTime
-from sqlalchemy import Enum
-from sqlalchemy import ForeignKey
-from sqlalchemy import Integer
-from sqlalchemy import String
-from sqlalchemy import Text
 
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
@@ -20,6 +9,7 @@ from sqlalchemy.orm import mapper
 
 from sqlalchemy.ext.declarative import declarative_base
 
+from xbus.broker.model import emission_profile
 from xbus.broker.model import emitter
 from xbus.broker.model import emitter_profile
 from xbus.broker.model import emitter_profile_event_type_rel
@@ -29,12 +19,12 @@ from xbus.broker.model import event_error
 from xbus.broker.model import event_node
 from xbus.broker.model import event_node_rel
 from xbus.broker.model import event_type
+from xbus.broker.model import input_descriptor
 from xbus.broker.model import role
 from xbus.broker.model import service
 
 from zope.sqlalchemy import ZopeTransactionExtension
 
-from .types import UUID
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 
@@ -97,11 +87,19 @@ class EventNode(BaseModel):
     pass
 
 
+class EmissionProfile(BaseModel):
+    pass
+
+
 class Emitter(BaseModel):
     pass
 
 
 class EmitterProfile(BaseModel):
+    pass
+
+
+class InputDescriptor(BaseModel):
     pass
 
 
@@ -141,6 +139,12 @@ EventNode._mapper = mapper(EventNode, event_node, properties={
     )
 })
 
+EmissionProfile._mapper = mapper(
+    EmissionProfile, emission_profile, properties={
+        'input_descriptor': relationship(InputDescriptor),
+    }
+)
+
 Emitter._mapper = mapper(Emitter, emitter, properties={
     'profile': relationship(
         EmitterProfile, backref=backref('emitters', lazy='dynamic')
@@ -155,18 +159,9 @@ EmitterProfile._mapper = mapper(EmitterProfile, emitter_profile, properties={
     )
 })
 
+InputDescriptor._mapper = mapper(
+    InputDescriptor, input_descriptor, properties={}
+)
 
-# Here follow non-Xbus-related models.
-# TODO Move elsewhere?
 
 Base = declarative_base()
-
-
-class InputDescriptor(Base):
-    """Store a descriptor used when sending data to Xbus."""
-
-    __tablename__ = 'input_descriptor'
-
-    id = Column(UUID, default=uuid4, primary_key=True)
-    name = Column(String(length=64), index=True, nullable=False, unique=True)
-    descriptor = Column(Binary)
