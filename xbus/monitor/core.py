@@ -80,6 +80,7 @@ def main(global_config, **settings):
 
     # REST API exposed with JSON.
 
+    _add_api_routes(config, 'emission_profile')
     _add_api_routes(config, 'emitter')
     _add_api_routes(config, 'emitter_profile')
     _add_api_routes(config, 'envelope')

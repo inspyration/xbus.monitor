@@ -1,6 +1,7 @@
 from pyramid.httpexceptions import HTTPBadRequest
 
 from xbus.monitor.models.models import DBSession
+from xbus.monitor.models.models import EmissionProfile
 from xbus.monitor.models.models import Emitter
 from xbus.monitor.models.models import EmitterProfile
 from xbus.monitor.models.models import Envelope
@@ -25,6 +26,10 @@ def _generic_record_factory(request, sqla_model):
     query = DBSession.query(sqla_model)
     query = query.filter(sqla_model.id == record_id)
     return query.first()
+
+
+def emission_profile(request):
+    return _generic_record_factory(request, EmissionProfile)
 
 
 def emitter(request):
