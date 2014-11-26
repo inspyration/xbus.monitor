@@ -92,6 +92,9 @@ def main(global_config, **settings):
     _add_api_routes(config, 'role')
     _add_api_routes(config, 'service')
 
+    # Other parts of the API.
+
+    config.add_route('upload', '/api/upload')
     config.add_route('xml_config', '/api/xml_config')
 
     config.scan()
