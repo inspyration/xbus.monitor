@@ -1,3 +1,4 @@
+import base64
 import datetime
 from uuid import UUID as base_UUID
 
@@ -40,6 +41,10 @@ class BaseModel(object):
     @staticmethod
     def _serialize(value):
         """Serialize types JSON cannot handle."""
+
+        # Base-64 encode binary data.
+        if isinstance(value, bytes):
+            return base64.b64encode(value).decode()
 
         if isinstance(value, datetime.date):
             return datetime.date.isoformat(value)
