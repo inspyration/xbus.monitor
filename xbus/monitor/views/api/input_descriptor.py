@@ -1,3 +1,4 @@
+import base64
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import Response
@@ -16,6 +17,11 @@ def _update_record(request, record):
         vals = request.json_body
 
         record.name = vals['name']
+
+        descriptor = vals.get('descriptor')
+        if descriptor:
+            record.descriptor_mimetype, record.descriptor = descriptor
+            record.descriptor = base64.b64decode(record.descriptor)
 
     except (KeyError, ValueError):
         raise HTTPBadRequest(
