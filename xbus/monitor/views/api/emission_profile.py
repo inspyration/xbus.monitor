@@ -12,6 +12,9 @@ from .util import get_list
 def _update_record(request, record):
     """Update the record using JSON data."""
 
+    # TODO Fill the "owner_id" field.
+    # TODO When there is an owner, disallow others from updating / deleting.
+
     try:
         vals = request.json_body
 

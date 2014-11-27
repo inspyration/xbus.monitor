@@ -23,6 +23,7 @@ from xbus.broker.model import event_type
 from xbus.broker.model import input_descriptor
 from xbus.broker.model import role
 from xbus.broker.model import service
+from xbus.broker.model.auth.main import user
 
 from zope.sqlalchemy import ZopeTransactionExtension
 
@@ -108,6 +109,10 @@ class InputDescriptor(BaseModel):
     pass
 
 
+class User(BaseModel):
+    pass
+
+
 Role._mapper = mapper(Role, role, properties={
     'service': relationship(Service, backref=backref('roles', lazy="dynamic"))
 })
@@ -147,6 +152,7 @@ EventNode._mapper = mapper(EventNode, event_node, properties={
 EmissionProfile._mapper = mapper(
     EmissionProfile, emission_profile, properties={
         'input_descriptor': relationship(InputDescriptor),
+        'owner': relationship(User),
     }
 )
 
@@ -167,6 +173,9 @@ EmitterProfile._mapper = mapper(EmitterProfile, emitter_profile, properties={
 InputDescriptor._mapper = mapper(
     InputDescriptor, input_descriptor, properties={}
 )
+
+
+User._mapper = mapper(User, user, properties={})
 
 
 Base = declarative_base()
