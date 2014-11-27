@@ -17,6 +17,34 @@ pyramid.includes =
 fig.sqlalchemy.url = postgresql://xbus:xbus@{socket}/xbus
 fig.sqlalchemy.default.socket = localhost:5432
 
+# pyramid_httpauth settings.
+# <https://github.com/tarzanjw/pyramid_httpauth>
+
+# default schema to challenge client (digest or basic), default=digest
+httpauth.schema = basic # Should be "digest" in the real world.
+
+# realm string for auth challenge header
+httpauth.realm = xbus_monitor
+
+# qop string for auth challenge header (used for Digest Auth only)
+# httpauth.qop
+
+# name of NonceManager class to use (used for Digest Auth only)
+# httpauth.nonce_manager
+
+# The secret key used to sign on nounce, used for built-in SignedNonceManager (if
+# httpauth.nonce_manager is not provided).
+# httpauth.nonce_manager_secret
+
+# domain string for auth challenge header
+# httpauth.domain
+
+# name of password-retrieval function
+httpauth.get_password = xbus.monitor.auth:get_user_password
+
+# name of group-finder callback function
+httpauth.groupfinder = xbus.monitor.auth:get_user_principals
+
 # By default, the toolbar only appears for clients from IP addresses
 # '127.0.0.1' and '::1'.
 # debugtoolbar.hosts = 127.0.0.1 ::1

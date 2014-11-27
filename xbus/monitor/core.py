@@ -1,10 +1,25 @@
 import os
+from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
+from pyramid import security
 from sqlalchemy import engine_from_config
 
 from .i18n import init_i18n
 from .models.models import DBSession
-from .models.models import BaseModel
+
+
+class RootFactory(object):
+    """Default factory that allows any authenticated user to access our views.
+    All views under the URL dispatch system use this root factory.
+    """
+
+    __acl__ = [
+        (security.Allow, security.Authenticated, 'view'),
+    ]
+
+    def __init__(self, request):
+        """Empty on purpose - this is needed to avoid errors."""
+        pass
 
 
 def _add_api_routes(config, model):
@@ -61,11 +76,21 @@ def main(global_config, **settings):
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
 
-    config = Configurator(settings=settings)
-
-    init_i18n(config)
+    config = Configurator(
+        settings=settings,
+        root_factory=RootFactory,
+    )
 
     config.include('pyramid_chameleon')
+    config.include('pyramid_httpauth')
+
+    config.set_authorization_policy(ACLAuthorizationPolicy())
+
+    # All views are protected by default; to provide an anonymous view, use
+    # permission=pyramid.security.NO_PERSMISSION_REQUIRED.
+    config.set_default_permission('view')
+
+    init_i18n(config)
 
     config.add_static_view('static', 'static', cache_max_age=3600)
 
