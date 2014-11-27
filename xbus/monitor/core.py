@@ -8,6 +8,10 @@ from .i18n import init_i18n
 from .models.models import DBSession
 
 
+# Where the REST API is located.
+API_PREFIX = '/api/'
+
+
 class RootFactory(object):
     """Default factory that allows any authenticated user to access our views.
     All views under the URL dispatch system use this root factory.
@@ -29,34 +33,44 @@ def _add_api_routes(config, model):
 
     config.add_route(
         '{model}_list'.format(model=model),
-        '/api/{model}'.format(model=model),
+        '{api_prefix}{model}'.format(
+            api_prefix=API_PREFIX, model=model,
+        ),
         request_method='GET',
     )
     config.add_route(
         '{model}_create'.format(model=model),
-        '/api/{model}'.format(model=model),
+        '{api_prefix}{model}'.format(
+            api_prefix=API_PREFIX, model=model,
+        ),
         request_method='POST',
     )
     config.add_route(
         model,
-        '/api/{model}/{{id}}'.format(model=model),
+        '{api_prefix}{model}/{{id}}'.format(api_prefix=API_PREFIX, model=model),
         factory='xbus.monitor.factory.{model}'.format(model=model),
     )
     config.add_route(
         '{model}_rel_list'.format(model=model),
-        '/api/{model}/{{id}}/{{rel}}'.format(model=model),
+        '{api_prefix}{model}/{{id}}/{{rel}}'.format(
+            api_prefix=API_PREFIX, model=model,
+        ),
         request_method='GET',
         factory='xbus.monitor.factory.{model}'.format(model=model),
     )
     config.add_route(
         '{model}_rel_create'.format(model=model),
-        '/api/{model}/{{id}}/{{rel}}'.format(model=model),
+        '{api_prefix}{model}/{{id}}/{{rel}}'.format(
+            api_prefix=API_PREFIX, model=model,
+        ),
         request_method='POST',
         factory='xbus.monitor.factory.{model}'.format(model=model),
     )
     config.add_route(
         '{model}_rel'.format(model=model),
-        '/api/{model}/{{id}}/{{rel}}/{{rid}}'.format(model=model),
+        '{api_prefix}{model}/{{id}}/{{rel}}/{{rid}}'.format(
+            api_prefix=API_PREFIX, model=model,
+        ),
         factory='xbus.monitor.factory.{model}'.format(model=model),
     )
 
@@ -99,7 +113,7 @@ def main(global_config, **settings):
     config.add_route('home', '/')
     config.add_route('xml_config_ui', '/xml_config')
     config.add_route(
-        'event_type_graph', '/api/event_type/{id}/graph',
+        'event_type_graph', API_PREFIX + 'event_type/{id}/graph',
         factory='xbus.monitor.factory.event_type'
     )
 
@@ -119,8 +133,11 @@ def main(global_config, **settings):
 
     # Other parts of the API.
 
-    config.add_route('upload', '/api/upload')
-    config.add_route('xml_config', '/api/xml_config')
+    config.add_route('upload', API_PREFIX + 'upload')
+    config.add_route('xml_config', API_PREFIX + 'xml_config')
 
+    # Process view declarations.
     config.scan()
+
+    # Run!
     return config.make_wsgi_app()
