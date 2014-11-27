@@ -1,5 +1,6 @@
 from pyramid.httpexceptions import HTTPBadRequest
 
+from xbus.monitor.core import RootFactory
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import EmissionProfile
 from xbus.monitor.models.models import Emitter
@@ -21,52 +22,53 @@ def _get_record_id(request):
         raise HTTPBadRequest(json_body={"error": "Invalid ID"})
 
 
-def _generic_record_factory(request, sqla_model):
-    record_id = _get_record_id(request)
-    query = DBSession.query(sqla_model)
-    query = query.filter(sqla_model.id == record_id)
-    return query.first()
+class _GenericRecordFactory(RootFactory):
+    def __init__(self, request):
+        self.record_id = _get_record_id(request)
+        query = DBSession.query(self.sqla_model)
+        query = query.filter(self.sqla_model.id == self.record_id)
+        self.record = query.first()
 
 
-def emission_profile(request):
-    return _generic_record_factory(request, EmissionProfile)
+class RecordFactory_emission_profile(_GenericRecordFactory):
+    sqla_model = EmissionProfile
 
 
-def emitter(request):
-    return _generic_record_factory(request, Emitter)
+class RecordFactory_emitter(_GenericRecordFactory):
+    sqla_model = Emitter
 
 
-def emitter_profile(request):
-    return _generic_record_factory(request, EmitterProfile)
+class RecordFactory_emitter_profile(_GenericRecordFactory):
+    sqla_model = EmitterProfile
 
 
-def envelope(request):
-    return _generic_record_factory(request, Envelope)
+class RecordFactory_envelope(_GenericRecordFactory):
+    sqla_model = Envelope
 
 
-def event(request):
-    return _generic_record_factory(request, Event)
+class RecordFactory_event(_GenericRecordFactory):
+    sqla_model = Event
 
 
-def event_error(request):
-    return _generic_record_factory(request, EventError)
+class RecordFactory_event_error(_GenericRecordFactory):
+    sqla_model = EventError
 
 
-def event_node(request):
-    return _generic_record_factory(request, EventNode)
+class RecordFactory_event_node(_GenericRecordFactory):
+    sqla_model = EventNode
 
 
-def event_type(request):
-    return _generic_record_factory(request, EventType)
+class RecordFactory_event_type(_GenericRecordFactory):
+    sqla_model = EventType
 
 
-def input_descriptor(request):
-    return _generic_record_factory(request, InputDescriptor)
+class RecordFactory_input_descriptor(_GenericRecordFactory):
+    sqla_model = InputDescriptor
 
 
-def role(request):
-    return _generic_record_factory(request, Role)
+class RecordFactory_role(_GenericRecordFactory):
+    sqla_model = Role
 
 
-def service(request):
-    return _generic_record_factory(request, Service)
+class RecordFactory_service(_GenericRecordFactory):
+    sqla_model = Service

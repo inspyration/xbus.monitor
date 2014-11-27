@@ -26,6 +26,10 @@ class RootFactory(object):
         pass
 
 
+# Where to find factories for individual records.
+RECORD_FACTORY_LOC = 'xbus.monitor.factory.RecordFactory_{model}'
+
+
 def _add_api_routes(config, model):
     """Register routes for a model to be exposed through the API. The relevant
     views then have to be implemented by referencing these routes.
@@ -48,7 +52,7 @@ def _add_api_routes(config, model):
     config.add_route(
         model,
         '{api_prefix}{model}/{{id}}'.format(api_prefix=API_PREFIX, model=model),
-        factory='xbus.monitor.factory.{model}'.format(model=model),
+        factory=RECORD_FACTORY_LOC.format(model=model),
     )
     config.add_route(
         '{model}_rel_list'.format(model=model),
@@ -56,7 +60,7 @@ def _add_api_routes(config, model):
             api_prefix=API_PREFIX, model=model,
         ),
         request_method='GET',
-        factory='xbus.monitor.factory.{model}'.format(model=model),
+        factory=RECORD_FACTORY_LOC.format(model=model),
     )
     config.add_route(
         '{model}_rel_create'.format(model=model),
@@ -64,14 +68,14 @@ def _add_api_routes(config, model):
             api_prefix=API_PREFIX, model=model,
         ),
         request_method='POST',
-        factory='xbus.monitor.factory.{model}'.format(model=model),
+        factory=RECORD_FACTORY_LOC.format(model=model),
     )
     config.add_route(
         '{model}_rel'.format(model=model),
         '{api_prefix}{model}/{{id}}/{{rel}}/{{rid}}'.format(
             api_prefix=API_PREFIX, model=model,
         ),
-        factory='xbus.monitor.factory.{model}'.format(model=model),
+        factory=RECORD_FACTORY_LOC.format(model=model),
     )
 
 
@@ -114,7 +118,7 @@ def main(global_config, **settings):
     config.add_route('xml_config_ui', '/xml_config')
     config.add_route(
         'event_type_graph', API_PREFIX + 'event_type/{id}/graph',
-        factory='xbus.monitor.factory.event_type'
+        factory=RECORD_FACTORY_LOC.format(model='event_type'),
     )
 
     # REST API exposed with JSON.

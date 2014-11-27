@@ -6,7 +6,6 @@ from pyramid.view import view_config
 
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import EventType
-from xbus.monitor.models.models import EventNode
 
 from .util import get_list
 
@@ -52,7 +51,7 @@ def event_type_create(request):
 
 
 def _get_record(request):
-    if request.context is None:
+    if request.context.record is None:
         raise HTTPNotFound(
             json_body={
                 "error": "Event type ID {id} not found".format(
@@ -60,7 +59,7 @@ def _get_record(request):
                 )
             },
         )
-    return request.context
+    return request.context.record
 
 
 @view_config(

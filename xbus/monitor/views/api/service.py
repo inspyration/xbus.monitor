@@ -51,7 +51,7 @@ def service_create(request):
 
 
 def _get_record(request):
-    if request.context is None:
+    if request.context.record is None:
         raise HTTPNotFound(
             json_body={
                 "error": "Service ID {id} not found".format(
@@ -59,7 +59,7 @@ def _get_record(request):
                 )
             },
         )
-    return request.context
+    return request.context.record
 
 
 @view_config(
