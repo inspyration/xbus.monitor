@@ -3,6 +3,7 @@ from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
 
+from xbus.monitor import auth
 from xbus.monitor.i18n import init_i18n
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.resources.root import RootFactory
@@ -79,6 +80,8 @@ def main(global_config, **settings):
         settings['sqlalchemy.url'] = db_url.format(socket=pg_socket)
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
+
+    auth.setup()
 
     config = Configurator(
         settings=settings,
