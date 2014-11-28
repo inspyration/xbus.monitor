@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
+        xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+        xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+        entityID="http://%(host)s/login_metadata">
+    <SPSSODescriptor
+            AuthnRequestsSigned="true"
+            protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+        <KeyDescriptor>
+            <ds:KeyInfo>
+                <ds:X509Data>
+                    <ds:X509Certificate>%(cert)s</ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </KeyDescriptor>
+        <AssertionConsumerService isDefault="true" index="0"
+                Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+                Location="http://%(host)s/login_success" />
+        <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</NameIDFormat>
+    </SPSSODescriptor>
+    <Organization>
+        <OrganizationName xml:lang="en">Example SAML 2.0 metadatas</OrganizationName>
+    </Organization>
+</EntityDescriptor>

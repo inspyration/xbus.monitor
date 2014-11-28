@@ -26,3 +26,5 @@ devdata.db
 .project
 .pydevproject
 .settings
+certs/out
+certs/data/*.pem

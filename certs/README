@@ -1,0 +1,9 @@
+The script generates 3 files for a connection with Authentic:
+
+    - sp_meta.xml
+    - priv_key.pem
+    - idp_meta.xml
+
+They are to be referenced via the saml2.* settings in the Pyramid .ini file.
+
+TODO not tested...
