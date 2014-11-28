@@ -40,10 +40,10 @@ httpauth.realm = xbus_monitor
 # httpauth.domain
 
 # name of password-retrieval function
-httpauth.get_password = xbus.monitor.auth:get_user_password
+httpauth.get_password = xbus.monitor.http_auth:get_user_password
 
 # name of group-finder callback function
-httpauth.groupfinder = xbus.monitor.auth:get_user_principals
+httpauth.groupfinder = xbus.monitor.http_auth:get_user_principals
 
 # By default, the toolbar only appears for clients from IP addresses
 # '127.0.0.1' and '::1'.
