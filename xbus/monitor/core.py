@@ -1,33 +1,19 @@
 import os
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
-from pyramid import security
 from sqlalchemy import engine_from_config
 
-from .i18n import init_i18n
-from .models.models import DBSession
+from xbus.monitor.i18n import init_i18n
+from xbus.monitor.models.models import DBSession
+from xbus.monitor.resources.root import RootFactory
 
 
 # Where the REST API is located.
 API_PREFIX = '/api/'
 
 
-class RootFactory(object):
-    """Default factory that allows any authenticated user to access our views.
-    All views under the URL dispatch system use this root factory.
-    """
-
-    __acl__ = [
-        (security.Allow, security.Authenticated, 'view'),
-    ]
-
-    def __init__(self, request):
-        """Empty on purpose - this is needed to avoid errors."""
-        pass
-
-
 # Where to find factories for individual records.
-RECORD_FACTORY_LOC = 'xbus.monitor.factory.RecordFactory_{model}'
+RECORD_FACTORY_LOC = 'xbus.monitor.resources.records.RecordFactory_{model}'
 
 
 def _add_api_routes(config, model):

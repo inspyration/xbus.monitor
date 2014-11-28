@@ -1,6 +1,5 @@
 from pyramid.httpexceptions import HTTPBadRequest
 
-from xbus.monitor.core import RootFactory
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import EmissionProfile
 from xbus.monitor.models.models import Emitter
@@ -13,21 +12,30 @@ from xbus.monitor.models.models import EventType
 from xbus.monitor.models.models import InputDescriptor
 from xbus.monitor.models.models import Role
 from xbus.monitor.models.models import Service
-
-
-def _get_record_id(request):
-    try:
-        return request.matchdict.get('id')
-    except:
-        raise HTTPBadRequest(json_body={"error": "Invalid ID"})
+from xbus.monitor.resources.root import RootFactory
 
 
 class _GenericRecordFactory(RootFactory):
+    """Factory for individual records; provides:
+    - record_id.
+    - record: sqlalchemy representation of the record.
+    - sqla_model: sqlalchemy class.
+    """
+
+    sqla_model = None  # To be overridden by derived classes.
+
     def __init__(self, request):
-        self.record_id = _get_record_id(request)
+        self.record_id = self._get_record_id(request)
         query = DBSession.query(self.sqla_model)
         query = query.filter(self.sqla_model.id == self.record_id)
         self.record = query.first()
+
+    @staticmethod
+    def _get_record_id(request):
+        try:
+            return request.matchdict.get('id')
+        except:
+            raise HTTPBadRequest(json_body={"error": "Invalid ID"})
 
 
 class RecordFactory_emission_profile(_GenericRecordFactory):
