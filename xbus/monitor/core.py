@@ -94,7 +94,7 @@ def main(global_config, **settings):
     config.set_authorization_policy(ACLAuthorizationPolicy())
 
     # All views are protected by default; to provide an anonymous view, use
-    # permission=pyramid.security.NO_PERSMISSION_REQUIRED.
+    # permission=pyramid.security.NO_PERMISSION_REQUIRED.
     config.set_default_permission('view')
 
     init_i18n(config)
