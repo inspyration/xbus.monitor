@@ -7,6 +7,8 @@ from xbus.monitor import http_auth
 from xbus.monitor.i18n import init_i18n
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.resources.root import RootFactory
+from xbus.monitor.views import saml2_auth
+from xbus.monitor.utils.config import bool_setting
 
 
 # Where the REST API is located.
@@ -81,15 +83,26 @@ def main(global_config, **settings):
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
 
-    http_auth.setup()
-
     config = Configurator(
         settings=settings,
         root_factory=RootFactory,
     )
 
     config.include('pyramid_chameleon')
-    config.include('pyramid_httpauth')
+
+    # Determine the kind of auth to use based on settings; store it so others
+    # can access the setting via "request.registry.settings.auth_kind").
+    config.add_settings(auth_kind=(
+        'saml2' if bool_setting(config.get_settings(), 'saml2.enabled')
+        else 'http'
+    ))
+
+    if config.get_settings().auth_kind == 'http':
+        http_auth.setup(config)
+        config.include('pyramid_httpauth')
+
+    elif config.get_settings().auth_kind == 'saml2':
+        saml2_auth.setup(config)
 
     config.set_authorization_policy(ACLAuthorizationPolicy())
 

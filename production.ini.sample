@@ -17,6 +17,17 @@ pyramid.includes =
 fig.sqlalchemy.url = postgresql://xbus:xbus@{socket}/xbus
 fig.sqlalchemy.default.socket = localhost:5432
 
+# SAML2 Authentication configuration - if disabled, HTTP Auth will be used.
+# Requires "lasso".
+
+saml2.enabled = False
+saml2.sp_meta =
+saml2.priv_key =
+saml2.idp_meta =
+
+# Secret value; not to be shared by multiple Pyramid programs.
+saml2.auth_secret =
+
 # pyramid_httpauth settings.
 # <https://github.com/tarzanjw/pyramid_httpauth>
 

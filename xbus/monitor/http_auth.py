@@ -36,8 +36,8 @@ def get_user_principals(login):
     return list(principals)
 
 
-def setup():
-    """Setup auth classes - to be called when the app starts."""
+def setup(config):
+    """Setup HTTP auth - to be called when the app starts."""
 
     class Hacked_HttpAuthPolicy(pyramid_httpauth.HttpAuthPolicy):
         """Rename the "WWW-Authenticate" header of 401 HTTP responses so
