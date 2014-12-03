@@ -3,6 +3,7 @@ from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import Response
 from pyramid.view import view_config
 
+from xbus.monitor.auth import get_logged_user_id
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import EmissionProfile
 
@@ -11,9 +12,6 @@ from .util import get_list
 
 def _update_record(request, record):
     """Update the record using JSON data."""
-
-    # TODO Fill the "owner_id" field.
-    # TODO When there is an owner, disallow others from updating / deleting.
 
     try:
         vals = request.json_body
@@ -45,6 +43,8 @@ def emission_profile_list(request):
 def emission_profile_create(request):
 
     record = EmissionProfile()
+
+    record.owner_id = get_logged_user_id(request)
 
     _update_record(request, record)
 
@@ -80,6 +80,7 @@ def emission_profile_read(request):
 @view_config(
     route_name='emission_profile',
     request_method='PUT',
+    permission='update',
     renderer='json',
 )
 def emission_profile_update(request):
@@ -91,6 +92,7 @@ def emission_profile_update(request):
 @view_config(
     route_name='emission_profile',
     request_method='DELETE',
+    permission='delete',
     renderer='json',
 )
 def emission_profile_delete(request):

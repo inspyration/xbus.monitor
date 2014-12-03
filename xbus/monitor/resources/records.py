@@ -1,5 +1,7 @@
 from pyramid.httpexceptions import HTTPBadRequest
+from pyramid import security
 
+from xbus.monitor.auth import user_principal
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import EmissionProfile
 from xbus.monitor.models.models import Emitter
@@ -40,6 +42,20 @@ class _GenericRecordFactory(RootFactory):
 
 class RecordFactory_emission_profile(_GenericRecordFactory):
     sqla_model = EmissionProfile
+
+    @property
+    def __acl__(self):
+        # Anyone can read but only owners can update / delete.
+        owner_id = self.record.owner_id
+        owner_principal = (
+            user_principal(owner_id) if owner_id
+            else security.Authenticated
+        )
+        return [
+            (security.Allow, security.Authenticated, 'view'),
+            (security.Allow, owner_principal, 'update'),
+            (security.Allow, owner_principal, 'delete'),
+        ]
 
 
 class RecordFactory_emitter(_GenericRecordFactory):
