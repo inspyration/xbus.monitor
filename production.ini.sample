@@ -56,7 +56,7 @@ httpauth.realm = xbus_monitor
 httpauth.get_password = xbus.monitor.http_auth:get_user_password
 
 # name of group-finder callback function
-httpauth.groupfinder = xbus.monitor.http_auth:get_user_principals
+httpauth.groupfinder = xbus.monitor.auth:get_user_principals
 
 # redis session settings.
 

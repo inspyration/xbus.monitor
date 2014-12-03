@@ -1,14 +1,13 @@
-import logging
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.httpexceptions import HTTPForbidden
 from pyramid.httpexceptions import HTTPFound
-from pyramid import security
 from pyramid.security import authenticated_userid
 from pyramid.security import forget
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.security import remember
 from pyramid.view import forbidden_view_config
 
+from xbus.monitor.auth import get_user_principals
 from xbus.monitor.utils.singleton import Singleton
 
 try:
@@ -16,29 +15,6 @@ try:
     lasso_loaded = True
 except:
     lasso_loaded = False
-
-
-log = logging.getLogger(__name__)
-
-
-# Default principals any logged user will posess.
-DEFAULT_PRINCIPALS = set((security.Everyone, security.Authenticated))
-
-
-def get_user_principals(login, request):
-    """Gather security groups for the specified user.
-    Called by pyramid_httpauth.
-    @return Pyramid principal list.
-    """
-
-    log.debug('Fetching principals for the user %s', login)
-
-    principals = DEFAULT_PRINCIPALS.copy()
-
-    # TODO Call xbus.broker.model.helpers.get_principals to fill the
-    # "principals" set.
-
-    return list(principals)
 
 
 class LassoSingle(object):
