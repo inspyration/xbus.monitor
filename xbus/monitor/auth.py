@@ -5,6 +5,9 @@
 import logging
 from pyramid import security
 
+from xbus.monitor.models.models import DBSession
+from xbus.monitor.models.models import User
+
 
 log = logging.getLogger(__name__)
 
@@ -30,14 +33,22 @@ def get_user_principals(login, request=None):
 
     principals = _DEFAULT_PRINCIPALS.copy()
 
-    # TODO Call xbus.broker.model.helpers.get_principals to fill the
-    # "principals" set.
+    db_session = DBSession()
+
+    user = db_session.query(User).filter(User.user_name == login).first()
+    if not user:
+        return principals
 
     # Record the ID of the user in principals.
-    # TODO From the user db...
-    user_id = '274627caada642d9b39091f0367c0199'
-    if user_id:
-        principals.add(user_principal(user_id))
+    principals.add(user_principal(user.user_id))
+
+    # Add actual principals.
+    # TODO Probably a better way with joins / model declaration setup...
+    principals.update(
+        permission.permission_name
+        for group in user.group_list
+        for permission in group.permission_list
+    )
 
     return list(principals)
 

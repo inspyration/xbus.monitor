@@ -23,7 +23,11 @@ from xbus.broker.model import event_type
 from xbus.broker.model import input_descriptor
 from xbus.broker.model import role
 from xbus.broker.model import service
+from xbus.broker.model.auth.main import group
+from xbus.broker.model.auth.main import group_permission_table
+from xbus.broker.model.auth.main import permission
 from xbus.broker.model.auth.main import user
+from xbus.broker.model.auth.main import user_group_table
 
 from zope.sqlalchemy import ZopeTransactionExtension
 
@@ -63,6 +67,9 @@ class BaseModel(object):
             c.name: self._serialize(getattr(self, c.name))
             for c in self._mapper.c
         }
+
+
+# Xbus models.
 
 
 class Role(BaseModel):
@@ -109,9 +116,22 @@ class InputDescriptor(BaseModel):
     pass
 
 
+# Auth models.
+
+
+class Group(BaseModel):
+    pass
+
+
+class Permission(BaseModel):
+    pass
+
+
 class User(BaseModel):
     pass
 
+
+# Mappers for Xbus models.
 
 Role._mapper = mapper(Role, role, properties={
     'service': relationship(Service, backref=backref('roles', lazy="dynamic"))
@@ -175,7 +195,29 @@ InputDescriptor._mapper = mapper(
 )
 
 
-User._mapper = mapper(User, user, properties={})
+# Mappers for auth models.
 
+Permission._mapper = mapper(Permission, permission, properties={})
+
+Group._mapper = mapper(Group, group, properties={
+    'permission_list': relationship(
+        Permission,
+        lazy='dynamic',
+        secondary=group_permission_table,
+        backref=backref('group_list', lazy='dynamic',),
+    ),
+})
+
+User._mapper = mapper(User, user, properties={
+    'group_list': relationship(
+        Group,
+        lazy='dynamic',
+        secondary=user_group_table,
+        backref=backref('user_list', lazy='dynamic',),
+    ),
+})
+
+
+# ---
 
 Base = declarative_base()
