@@ -100,7 +100,10 @@ def _login_referrer(request, params):
 
 def forbidden_view(exc, request):
     request.response.status = exc.code
-    return {'auth_kind': request.registry.settings.auth_kind}
+    return {
+        'auth_kind': request.registry.settings.auth_kind,
+        'logged_in': request.authenticated_userid is not None,
+    }
 
 
 def login_view(request):
