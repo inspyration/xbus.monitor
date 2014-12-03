@@ -7,6 +7,7 @@ from pyramid.security import authenticated_userid
 from pyramid.security import forget
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.security import remember
+from pyramid.view import forbidden_view_config
 
 from xbus.monitor.utils.singleton import Singleton
 
@@ -90,13 +91,34 @@ class LassoSingle(object):
         return lasso.Login(self.server)
 
 
+def _login_referrer(request, params):
+    """Extract a "login_referrer" parameter from the specified dictionary or
+    just provide an URL to the home page.
+    """
+    return params.get('login_referrer') or request.route_url('home')
+
+
+def forbidden_view(exc, request):
+    request.response.status = exc.code
+    return {'auth_kind': request.registry.settings.auth_kind}
+
+
 def login_view(request):
-    """Redirect to either the login page or the home page."""
+    """Redirect to either the login page or the previous page.
+    Request params:
+        * login_referrer (optional): The page to redirect to when logged in.
+    """
+
+    login_referrer = _login_referrer(request, request.params)
 
     if authenticated_userid(request):
-        return HTTPFound(location=request.route_url('home'))
+        return HTTPFound(location=login_referrer)
 
-    # Redirect to authentic
+    # Save the previous page.
+    request.session['login_referrer'] = login_referrer
+
+    # Redirect to Authentic.
+
     sp_meta = request.registry.settings['saml2.sp_meta']
     sp_key = request.registry.settings['saml2.priv_key']
     idp_meta = request.registry.settings['saml2.idp_meta']
@@ -159,7 +181,7 @@ def login_success_view(request):
             for value in at.attributeValue:
                 content = [v.exportToXml() for v in value.any]
                 content = ''.join(content)
-                values.append(content.decode('utf8'))
+                values.append(content)
     roles = attributes.get('role')
     if not roles:
         raise HTTPForbidden('%s: %s' % (
@@ -168,15 +190,20 @@ def login_success_view(request):
 
     request.session['authentic_roles'] = roles
 
+    login_referrer = _login_referrer(request, request.session)
     headers = remember(request, login.assertion.subject.nameId.content)
 
-    return HTTPFound(location=request.route_url('home'), headers=headers)
+    return HTTPFound(location=login_referrer, headers=headers)
 
 
 def logout_view(request):
+    """Request params:
+        * login_referrer (optional): The page to redirect to when logged in.
+    """
+    login_referrer = _login_referrer(request, request.params)
     request.session.clear()
     headers = forget(request)
-    return HTTPFound(location=request.route_url('home'), headers=headers)
+    return HTTPFound(location=login_referrer, headers=headers)
 
 
 def setup(config):
@@ -215,3 +242,6 @@ def setup(config):
     add_view(login_metadata_view, route_name='saml2_login_metadata')
     add_view(login_success_view, route_name='saml2_login_success')
     add_view(logout_view, route_name='saml2_logout')
+
+    # The default 403 (forbidden) view produces HTML; change it to a JSON one.
+    forbidden_view_config(renderer='json')(forbidden_view)
