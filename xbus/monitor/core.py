@@ -1,6 +1,7 @@
 import os
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
+from pyramid_redis_sessions import session_factory_from_settings
 from sqlalchemy import engine_from_config
 
 from xbus.monitor import http_auth
@@ -84,6 +85,7 @@ def main(global_config, **settings):
     DBSession.configure(bind=engine)
 
     config = Configurator(
+        session_factory=session_factory_from_settings(settings),
         settings=settings,
         root_factory=RootFactory,
     )

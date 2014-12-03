@@ -12,6 +12,7 @@ pyramid.debug_notfound = false
 pyramid.debug_routematch = false
 pyramid.default_locale_name = en_US
 pyramid.includes =
+    pyramid_redis_sessions
     pyramid_tm
 
 fig.sqlalchemy.url = postgresql://xbus:xbus@{socket}/xbus
@@ -26,6 +27,7 @@ saml2.priv_key =
 saml2.idp_meta =
 
 # Secret value; not to be shared by multiple Pyramid programs.
+redis.sessions.secret =
 saml2.auth_secret =
 
 # pyramid_httpauth settings.
@@ -55,6 +57,50 @@ httpauth.get_password = xbus.monitor.http_auth:get_user_password
 
 # name of group-finder callback function
 httpauth.groupfinder = xbus.monitor.http_auth:get_user_principals
+
+# redis session settings.
+
+# Session timeout: 2 hours.
+redis.sessions.timeout = 7200
+
+# redis session cookie settings
+redis.sessions.cookie_name = session
+# cookie expiration after 1 year...
+redis.sessions.cookie_max_age = 31536000
+redis.sessions.cookie_path = /
+redis.sessions.cookie_domain =
+redis.sessions.cookie_secure = False
+redis.sessions.cookie_httponly = False
+redis.sessions.cookie_on_exception = True
+
+# you can supply a redis connection string as a URL
+redis.sessions.url = redis://localhost:6379/0
+
+# or as individual settings (note: the URL gets preference if you do both)
+#redis.sessions.host = localhost
+#redis.sessions.port = 6379
+#redis.sessions.db = 0
+#redis.sessions.password = None
+
+# additional options can be supplied to redis-py's StrictRedis
+#redis.sessions.socket_timeout =
+#redis.sessions.connection_pool =
+#redis.sessions.charset = utf-8
+#redis.sessions.errors = strict
+#redis.sessions.unix_socket_path =
+
+# in the advanced section we'll cover how to instantiate your own client
+#redis.sessions.client_callable = my.dotted.python.callable
+
+# along with defining your own serialize and deserialize methods
+# redis.sessions.serialize = cPickle.dumps
+# redis.sessions.deserialize = cPickle.loads
+
+# you can specify a prefix to be used with session keys in redis
+redis.sessions.prefix = pyramid_openerp_demo.session.
+
+# or you can supply your own UID generator callable for session keys
+# redis.sessions.id_generator = niftyuid
 
 # By default, the toolbar only appears for clients from IP addresses
 # '127.0.0.1' and '::1'.
