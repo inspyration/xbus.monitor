@@ -1,7 +1,6 @@
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import Response
-from pyramid.view import view_config
 
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import EmitterProfile
@@ -68,11 +67,7 @@ def emitter_profile_delete(request):
     return Response(status_int=204, json_body={})
 
 
-@view_config(
-    route_name='emitter_profile_rel',
-    request_method='PUT',
-    renderer='json',
-)
+@view_decorators.rel_add(_MODEL)
 def emitter_profile_rel_add(request):
 
     record = get_record(request, _MODEL)
@@ -101,12 +96,8 @@ def emitter_profile_rel_add(request):
     return added_record.as_dict()
 
 
-@view_config(
-    route_name='emitter_profile_rel',
-    request_method='DELETE',
-    renderer='json',
-)
-def emitter_profile_rel_remove(request):
+@view_decorators.rel_delete(_MODEL)
+def emitter_profile_rel_delete(request):
 
     record = get_record(request, _MODEL)
     rel_name, rid = request.matchdict.get('rel'), request.matchdict.get('rid')
@@ -134,10 +125,7 @@ def emitter_profile_rel_remove(request):
     return Response(status_int=204, json_body={})
 
 
-@view_config(
-    route_name='emitter_profile_rel_list',
-    renderer='json',
-)
+@view_decorators.rel_list(_MODEL)
 def emitter_profile_rel_list(request):
 
     record = get_record(request, _MODEL)
@@ -154,10 +142,7 @@ def emitter_profile_rel_list(request):
     return get_list(rel.mapper, request.GET, rel_list)
 
 
-@view_config(
-    route_name='emitter_profile_rel_create',
-    renderer='json',
-)
+@view_decorators.rel_create(_MODEL)
 def emitter_profile_rel_create(request):
 
     record = get_record(request, _MODEL)

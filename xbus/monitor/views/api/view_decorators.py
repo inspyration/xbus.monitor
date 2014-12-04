@@ -53,3 +53,37 @@ class delete(view_config):
             'request_method': 'DELETE',
             'route_name': model,
         }))
+
+
+class rel_list(view_config):
+    def __init__(self, model, **settings):
+        super(rel_list, self).__init__(**_merge_settings(settings, {
+            'permission': 'read',
+            'route_name': '%s_rel_list' % model,
+        }))
+
+
+class rel_create(view_config):
+    def __init__(self, model, **settings):
+        super(rel_create, self).__init__(**_merge_settings(settings, {
+            'permission': 'update',
+            'route_name': '%s_rel_create' % model,
+        }))
+
+
+class rel_add(view_config):
+    def __init__(self, model, **settings):
+        super(rel_add, self).__init__(**_merge_settings(settings, {
+            'permission': 'update',
+            'request_method': 'PUT',
+            'route_name': '%s_rel' % model,
+        }))
+
+
+class rel_delete(view_config):
+    def __init__(self, model, **settings):
+        super(rel_delete, self).__init__(**_merge_settings(settings, {
+            'permission': 'update',
+            'request_method': 'DELETE',
+            'route_name': '%s_rel' % model,
+        }))

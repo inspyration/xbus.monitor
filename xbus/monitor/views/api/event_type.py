@@ -69,11 +69,7 @@ def event_type_delete(request):
     return Response(status_int=204, json_body={})
 
 
-@view_config(
-    route_name='event_type_rel',
-    request_method='PUT',
-    renderer='json',
-)
+@view_decorators.rel_add(_MODEL)
 def event_type_rel_add(request):
 
     record = get_record(request, _MODEL)
@@ -102,12 +98,8 @@ def event_type_rel_add(request):
     return added_record.as_dict()
 
 
-@view_config(
-    route_name='event_type_rel',
-    request_method='DELETE',
-    renderer='json',
-)
-def event_type_rel_remove(request):
+@view_decorators.rel_delete(_MODEL)
+def event_type_rel_delete(request):
 
     record = get_record(request, _MODEL)
     rel_name, rid = request.matchdict.get('rel'), request.matchdict.get('rid')
@@ -135,10 +127,7 @@ def event_type_rel_remove(request):
     return Response(status_int=204, json_body={})
 
 
-@view_config(
-    route_name='event_type_rel_list',
-    renderer='json',
-)
+@view_decorators.rel_list(_MODEL)
 def event_type_rel_list(request):
 
     record = get_record(request, _MODEL)
@@ -160,6 +149,7 @@ def event_type_rel_list(request):
 @view_config(
     route_name='event_type_graph',
     renderer='json',
+    http_cache=0,
 )
 def event_type_graph(request):
 
@@ -224,10 +214,7 @@ def event_type_graph(request):
     return list_res
 
 
-@view_config(
-    route_name='event_type_rel_create',
-    renderer='json',
-)
+@view_decorators.rel_create(_MODEL)
 def event_type_rel_create(request):
 
     record = get_record(request, _MODEL)
