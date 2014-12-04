@@ -1,13 +1,16 @@
 from pyramid.httpexceptions import HTTPBadRequest
-from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import Response
-from pyramid.view import view_config
 
 from xbus.monitor.auth import get_logged_user_id
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import EmissionProfile
 
 from .util import get_list
+from .util import get_record
+from . import view_decorators
+
+
+_MODEL = 'emission_profile'
 
 
 def _update_record(request, record):
@@ -28,20 +31,13 @@ def _update_record(request, record):
         )
 
 
-@view_config(
-    route_name='emission_profile_list',
-    renderer='json',
-)
+@view_decorators.list(_MODEL)
 def emission_profile_list(request):
     return get_list(EmissionProfile, request.GET)
 
 
-@view_config(
-    route_name='emission_profile_create',
-    renderer='json',
-)
+@view_decorators.create(_MODEL)
 def emission_profile_create(request):
-
     record = EmissionProfile()
 
     record.owner_id = get_logged_user_id(request)
@@ -55,48 +51,22 @@ def emission_profile_create(request):
     return record.as_dict()
 
 
-def _get_record(request):
-    if request.context.record is None:
-        raise HTTPNotFound(
-            json_body={
-                "error": "Emission profile ID {id} not found".format(
-                    id=request.matchdict.get('id')
-                )
-            },
-        )
-    return request.context.record
-
-
-@view_config(
-    route_name='emission_profile',
-    request_method='GET',
-    renderer='json',
-)
+@view_decorators.read(_MODEL)
 def emission_profile_read(request):
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     return record.as_dict()
 
 
-@view_config(
-    route_name='emission_profile',
-    request_method='PUT',
-    permission='update',
-    renderer='json',
-)
+@view_decorators.update(_MODEL)
 def emission_profile_update(request):
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     _update_record(request, record)
     return record.as_dict()
 
 
-@view_config(
-    route_name='emission_profile',
-    request_method='DELETE',
-    permission='delete',
-    renderer='json',
-)
+@view_decorators.delete(_MODEL)
 def emission_profile_delete(request):
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     DBSession.delete(record)
 
     return Response(status_int=204, json_body={})

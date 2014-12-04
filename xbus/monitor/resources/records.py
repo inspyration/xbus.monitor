@@ -26,6 +26,16 @@ class _GenericRecordFactory(RootFactory):
 
     sqla_model = None  # To be overridden by derived classes.
 
+    # Give any authenticated full access to all models by default, unless the
+    # ACL is specialized in the derived class.
+    # TODO Wrong but easier for tests...
+    __acl__ = [
+        (security.Allow, security.Authenticated, 'create'),
+        (security.Allow, security.Authenticated, 'read'),
+        (security.Allow, security.Authenticated, 'update'),
+        (security.Allow, security.Authenticated, 'delete'),
+    ]
+
     def __init__(self, request):
         self.record_id = self._get_record_id(request)
         query = DBSession.query(self.sqla_model)
@@ -52,7 +62,8 @@ class RecordFactory_emission_profile(_GenericRecordFactory):
             else security.Authenticated
         )
         return [
-            (security.Allow, security.Authenticated, 'view'),
+            (security.Allow, security.Authenticated, 'create'),
+            (security.Allow, security.Authenticated, 'read'),
             (security.Allow, owner_principal, 'update'),
             (security.Allow, owner_principal, 'delete'),
         ]

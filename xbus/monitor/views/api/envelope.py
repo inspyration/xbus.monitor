@@ -1,12 +1,15 @@
 from pyramid.httpexceptions import HTTPBadRequest
-from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import Response
-from pyramid.view import view_config
 
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import Envelope
 
 from .util import get_list
+from .util import get_record
+from . import view_decorators
+
+
+_MODEL = 'envelope'
 
 
 def _update_record(request, record):
@@ -26,20 +29,13 @@ def _update_record(request, record):
         )
 
 
-@view_config(
-    route_name='envelope_list',
-    renderer='json',
-)
+@view_decorators.list(_MODEL)
 def envelope_list(request):
     return get_list(Envelope, request.GET)
 
 
-@view_config(
-    route_name='envelope_create',
-    renderer='json',
-)
+@view_decorators.create(_MODEL)
 def envelope_create(request):
-
     record = Envelope()
 
     _update_record(request, record)
@@ -51,46 +47,22 @@ def envelope_create(request):
     return record.as_dict()
 
 
-def _get_record(request):
-    if request.context.record is None:
-        raise HTTPNotFound(
-            json_body={
-                "error": "Envelope ID {id} not found".format(
-                    id=request.matchdict.get('id')
-                )
-            },
-        )
-    return request.context.record
-
-
-@view_config(
-    route_name='envelope',
-    request_method='GET',
-    renderer='json',
-)
+@view_decorators.read(_MODEL)
 def envelope_read(request):
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     return record.as_dict()
 
 
-@view_config(
-    route_name='envelope',
-    request_method='PUT',
-    renderer='json',
-)
+@view_decorators.update(_MODEL)
 def envelope_update(request):
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     _update_record(request, record)
     return record.as_dict()
 
 
-@view_config(
-    route_name='envelope',
-    request_method='DELETE',
-    renderer='json',
-)
+@view_decorators.delete(_MODEL)
 def envelope_delete(request):
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     DBSession.delete(record)
 
     return Response(status_int=204, json_body={})

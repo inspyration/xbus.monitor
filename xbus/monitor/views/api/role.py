@@ -1,13 +1,15 @@
 from pyramid.httpexceptions import HTTPBadRequest
-from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import Response
-from pyramid.view import view_config
 
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import Role
-from xbus.broker.model import gen_password
 
 from .util import get_list
+from .util import get_record
+from . import view_decorators
+
+
+_MODEL = 'role'
 
 
 def _update_record(request, record):
@@ -27,20 +29,13 @@ def _update_record(request, record):
         )
 
 
-@view_config(
-    route_name='role_list',
-    renderer='json',
-)
+@view_decorators.list(_MODEL)
 def role_list(request):
     return get_list(Role, request.GET)
 
 
-@view_config(
-    route_name='role_create',
-    renderer='json',
-)
+@view_decorators.create(_MODEL)
 def role_create(request):
-
     record = Role()
 
     _update_record(request, record)
@@ -53,48 +48,24 @@ def role_create(request):
     return record.as_dict()
 
 
-def _get_record(request):
-    if request.context.record is None:
-        raise HTTPNotFound(
-            json_body={
-                "error": "Role ID {id} not found".format(
-                    id=request.matchdict.get('id')
-                )
-            },
-        )
-    return request.context.record
-
-
-@view_config(
-    route_name='role',
-    request_method='GET',
-    renderer='json',
-)
+@view_decorators.read(_MODEL)
 def role_read(request):
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     res = record.as_dict()
     del res['password']
     return res
 
 
-@view_config(
-    route_name='role',
-    request_method='PUT',
-    renderer='json',
-)
+@view_decorators.update(_MODEL)
 def role_update(request):
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     _update_record(request, record)
     return record.as_dict()
 
 
-@view_config(
-    route_name='role',
-    request_method='DELETE',
-    renderer='json',
-)
+@view_decorators.delete(_MODEL)
 def role_delete(request):
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     DBSession.delete(record)
 
     return Response(status_int=204, json_body={})

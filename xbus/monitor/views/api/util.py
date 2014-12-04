@@ -1,4 +1,6 @@
-from ...models.models import DBSession
+from pyramid.httpexceptions import HTTPNotFound
+
+from xbus.monitor.models.models import DBSession
 
 
 def get_list(sqla_model, params=None, query=None):
@@ -43,3 +45,19 @@ def get_list(sqla_model, params=None, query=None):
 
     records = query.all()
     return [record.as_dict() for record in records]
+
+
+def get_record(request, model):
+    """Helper to ensure a record is available and return it (as an sqlalchemy
+    object).
+    """
+    if request.context.record is None:
+        raise HTTPNotFound(
+            json_body={
+                'error': '%{model} ID {id} not found'.format(
+                    id=request.matchdict.get('id'),
+                    model=model,
+                ),
+            },
+        )
+    return request.context.record

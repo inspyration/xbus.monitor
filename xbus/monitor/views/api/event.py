@@ -1,36 +1,19 @@
-from pyramid.httpexceptions import HTTPNotFound
-from pyramid.view import view_config
-
 from xbus.monitor.models.models import Event
 
 from .util import get_list
+from .util import get_record
+from . import view_decorators
 
 
-@view_config(
-    route_name='event_list',
-    renderer='json',
-)
+_MODEL = 'event'
+
+
+@view_decorators.list(_MODEL)
 def event_list(request):
     return get_list(Event, request.GET)
 
 
-def _get_record(request):
-    if request.context.record is None:
-        raise HTTPNotFound(
-            json_body={
-                "error": "Event ID {id} not found".format(
-                    id=request.matchdict.get('id')
-                )
-            },
-        )
-    return request.context.record
-
-
-@view_config(
-    route_name='event',
-    request_method='GET',
-    renderer='json',
-)
+@view_decorators.read(_MODEL)
 def event_read(request):
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     return record.as_dict()

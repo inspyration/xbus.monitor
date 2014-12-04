@@ -7,6 +7,11 @@ from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import EmitterProfile
 
 from .util import get_list
+from .util import get_record
+from . import view_decorators
+
+
+_MODEL = 'emitter_profile'
 
 
 def _update_record(request, record):
@@ -24,20 +29,13 @@ def _update_record(request, record):
         )
 
 
-@view_config(
-    route_name='emitter_profile_list',
-    renderer='json',
-)
+@view_decorators.list(_MODEL)
 def emitter_profile_list(request):
     return get_list(EmitterProfile, request.GET)
 
 
-@view_config(
-    route_name='emitter_profile_create',
-    renderer='json',
-)
+@view_decorators.create(_MODEL)
 def emitter_profile_create(request):
-
     record = EmitterProfile()
 
     _update_record(request, record)
@@ -49,46 +47,22 @@ def emitter_profile_create(request):
     return record.as_dict()
 
 
-def _get_record(request):
-    if request.context.record is None:
-        raise HTTPNotFound(
-            json_body={
-                "error": "Emitter profile ID {id} not found".format(
-                    id=request.matchdict.get('id')
-                )
-            },
-        )
-    return request.context.record
-
-
-@view_config(
-    route_name='emitter_profile',
-    request_method='GET',
-    renderer='json',
-)
+@view_decorators.read(_MODEL)
 def emitter_profile_read(request):
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     return record.as_dict()
 
 
-@view_config(
-    route_name='emitter_profile',
-    request_method='PUT',
-    renderer='json',
-)
+@view_decorators.update(_MODEL)
 def emitter_profile_update(request):
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     _update_record(request, record)
     return record.as_dict()
 
 
-@view_config(
-    route_name='emitter_profile',
-    request_method='DELETE',
-    renderer='json',
-)
+@view_decorators.delete(_MODEL)
 def emitter_profile_delete(request):
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     DBSession.delete(record)
 
     return Response(status_int=204, json_body={})
@@ -101,7 +75,7 @@ def emitter_profile_delete(request):
 )
 def emitter_profile_rel_add(request):
 
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     rel_name, rid = request.matchdict.get('rel'), request.matchdict.get('rid')
     rel = record.get_mapper().get_property(rel_name)
     rel_list = getattr(record, rel_name, None)
@@ -134,7 +108,7 @@ def emitter_profile_rel_add(request):
 )
 def emitter_profile_rel_remove(request):
 
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     rel_name, rid = request.matchdict.get('rel'), request.matchdict.get('rid')
     rel = record.get_mapper().get_property(rel_name)
     rel_list = getattr(record, rel_name, None)
@@ -166,7 +140,7 @@ def emitter_profile_rel_remove(request):
 )
 def emitter_profile_rel_list(request):
 
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     rel_name = request.matchdict.get('rel')
     rel = record.get_mapper().get_property(rel_name)
     rel_list = getattr(record, rel_name, None)
@@ -186,7 +160,7 @@ def emitter_profile_rel_list(request):
 )
 def emitter_profile_rel_create(request):
 
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     rel_name = request.matchdict.get('rel')
     rel = record.get_mapper().get_property(rel_name)
     rel_list = getattr(record, rel_name, None)

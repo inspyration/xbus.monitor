@@ -8,6 +8,11 @@ from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import EventType
 
 from .util import get_list
+from .util import get_record
+from . import view_decorators
+
+
+_MODEL = 'event_type'
 
 
 def _update_record(request, record):
@@ -25,20 +30,13 @@ def _update_record(request, record):
         )
 
 
-@view_config(
-    route_name='event_type_list',
-    renderer='json',
-)
+@view_decorators.list(_MODEL)
 def event_type_list(request):
     return get_list(EventType, request.GET)
 
 
-@view_config(
-    route_name='event_type_create',
-    renderer='json',
-)
+@view_decorators.create(_MODEL)
 def event_type_create(request):
-
     record = EventType()
 
     _update_record(request, record)
@@ -50,46 +48,22 @@ def event_type_create(request):
     return record.as_dict()
 
 
-def _get_record(request):
-    if request.context.record is None:
-        raise HTTPNotFound(
-            json_body={
-                "error": "Event type ID {id} not found".format(
-                    id=request.matchdict.get('id')
-                )
-            },
-        )
-    return request.context.record
-
-
-@view_config(
-    route_name='event_type',
-    request_method='GET',
-    renderer='json',
-)
+@view_decorators.read(_MODEL)
 def event_type_read(request):
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     return record.as_dict()
 
 
-@view_config(
-    route_name='event_type',
-    request_method='PUT',
-    renderer='json',
-)
+@view_decorators.update(_MODEL)
 def event_type_update(request):
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     _update_record(request, record)
     return record.as_dict()
 
 
-@view_config(
-    route_name='event_type',
-    request_method='DELETE',
-    renderer='json',
-)
+@view_decorators.delete(_MODEL)
 def event_type_delete(request):
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     DBSession.delete(record)
 
     return Response(status_int=204, json_body={})
@@ -102,7 +76,7 @@ def event_type_delete(request):
 )
 def event_type_rel_add(request):
 
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     rel_name, rid = request.matchdict.get('rel'), request.matchdict.get('rid')
     rel = record.get_mapper().get_property(rel_name)
     rel_list = getattr(record, rel_name, None)
@@ -135,7 +109,7 @@ def event_type_rel_add(request):
 )
 def event_type_rel_remove(request):
 
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     rel_name, rid = request.matchdict.get('rel'), request.matchdict.get('rid')
     rel = record.get_mapper().get_property(rel_name)
     rel_list = getattr(record, rel_name, None)
@@ -167,7 +141,7 @@ def event_type_rel_remove(request):
 )
 def event_type_rel_list(request):
 
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     rel_name = request.matchdict.get('rel')
     if rel_name == 'nodes':
         return event_type_graph(request)
@@ -189,7 +163,7 @@ def event_type_rel_list(request):
 )
 def event_type_graph(request):
 
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     nodes = list(record.nodes)
     res, by_id, parents_cache = {}, {}, {}
 
@@ -256,7 +230,7 @@ def event_type_graph(request):
 )
 def event_type_rel_create(request):
 
-    record = _get_record(request)
+    record = get_record(request, _MODEL)
     rel_name = request.matchdict.get('rel')
     rel = record.get_mapper().get_property(rel_name)
     rel_list = getattr(record, rel_name, None)
