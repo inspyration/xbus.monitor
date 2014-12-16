@@ -15,6 +15,10 @@ from xbus.monitor.utils.config import bool_setting
 # Where the REST API is located.
 API_PREFIX = '/api/'
 
+# Where to find factories for collections of records.
+COLLECTION_FACTORY_LOC = (
+    'xbus.monitor.resources.collections.CollectionFactory_{model}'
+)
 
 # Where to find factories for individual records.
 RECORD_FACTORY_LOC = 'xbus.monitor.resources.records.RecordFactory_{model}'
@@ -31,6 +35,7 @@ def _add_api_routes(config, model):
             api_prefix=API_PREFIX, model=model,
         ),
         request_method='GET',
+        factory=COLLECTION_FACTORY_LOC.format(model=model),
     )
     config.add_route(
         '{model}_create'.format(model=model),
@@ -38,6 +43,7 @@ def _add_api_routes(config, model):
             api_prefix=API_PREFIX, model=model,
         ),
         request_method='POST',
+        factory=COLLECTION_FACTORY_LOC.format(model=model),
     )
     config.add_route(
         model,

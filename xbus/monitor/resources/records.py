@@ -26,8 +26,8 @@ class _GenericRecordFactory(RootFactory):
 
     sqla_model = None  # To be overridden by derived classes.
 
-    # Give any authenticated full access to all models by default, unless the
-    # ACL is specialized in the derived class.
+    # Give any authenticated user full access to all models by default, unless
+    # the ACL is specialized in the derived class.
     # TODO Wrong but easier for tests...
     __acl__ = [
         (security.Allow, security.Authenticated, 'create'),

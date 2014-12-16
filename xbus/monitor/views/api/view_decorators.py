@@ -16,6 +16,7 @@ def _merge_settings(settings, default_settings):
 class list(view_config):
     def __init__(self, model, **settings):
         super(list, self).__init__(**_merge_settings(settings, {
+            'permission': 'read',
             'route_name': '%s_list' % model,
         }))
 
