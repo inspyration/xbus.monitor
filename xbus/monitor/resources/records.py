@@ -30,7 +30,6 @@ class _GenericRecordFactory(RootFactory):
     # the ACL is specialized in the derived class.
     # TODO Wrong but easier for tests...
     __acl__ = [
-        (security.Allow, security.Authenticated, 'create'),
         (security.Allow, security.Authenticated, 'read'),
         (security.Allow, security.Authenticated, 'update'),
         (security.Allow, security.Authenticated, 'delete'),
@@ -62,7 +61,6 @@ class RecordFactory_emission_profile(_GenericRecordFactory):
             else security.Authenticated
         )
         return [
-            (security.Allow, security.Authenticated, 'create'),
             (security.Allow, security.Authenticated, 'read'),
             (security.Allow, owner_principal, 'update'),
             (security.Allow, owner_principal, 'delete'),
