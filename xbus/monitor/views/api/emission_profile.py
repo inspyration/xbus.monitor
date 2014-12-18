@@ -33,7 +33,14 @@ def _update_record(request, record):
 
 @view_decorators.list(_MODEL)
 def emission_profile_list(request):
-    return get_list(EmissionProfile, request.GET)
+    # Only list the user's own emission profiles. Others can still be read (so
+    # they can be accessed if they are referenced elsewhere) but they just
+    # won't be listed here.
+    return [
+        item
+        for item in get_list(EmissionProfile, request.GET)
+        if item['owner_id'] == get_logged_user_id(request)
+    ]
 
 
 @view_decorators.create(_MODEL)
