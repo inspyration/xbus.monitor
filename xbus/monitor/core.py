@@ -131,6 +131,10 @@ def main(global_config, **settings):
         factory=RECORD_FACTORY_LOC.format(model='event_type'),
     )
 
+    # Other routes.
+
+    config.add_route('login_info', 'login_info')
+
     # REST API exposed with JSON.
 
     _add_api_routes(config, 'emission_profile')
