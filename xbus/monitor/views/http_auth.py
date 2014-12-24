@@ -1,15 +1,8 @@
 from pyramid.security import NO_PERMISSION_REQUIRED
 import pyramid_httpauth
 
-
-def get_user_password(login):
-    """Get the password of the specified user.
-    Called by pyramid_httpauth.
-    """
-
-    # TODO Implement.
-
-    return 'test'
+from xbus.monitor.models.models import DBSession
+from xbus.monitor.models.models import User
 
 
 def login_view(request):
@@ -27,11 +20,31 @@ def setup(config):
     """Setup HTTP auth - to be called when the app starts."""
 
     class Hacked_HttpAuthPolicy(pyramid_httpauth.HttpAuthPolicy):
-        """Rename the "WWW-Authenticate" header of 401 HTTP responses so
-        browsers ignore it but clients still get it, so they can provide their
-        own auth form. Probably not entirely legit...
-        """
+        def authenticated_userid(self, request):
+            """Override to change the password verifier (we don't store them as
+            clear text).
+            """
+
+            login = self.unauthenticated_userid(request)
+            password = self.get_password(request)
+
+            db_session = DBSession()
+
+            user = db_session.query(User).filter(
+                User.user_name == login
+            ).first()
+            if not user:
+                return None
+
+            # TODO Does not work - use helpers from sbus.monitor.
+            return user.password == password
+
         def login_required(self, request):
+            """Rename the "WWW-Authenticate" header of 401 HTTP responses so
+            browsers ignore it but clients still get it, so they can provide
+            their own auth form. Probably not entirely legit...
+            """
+
             ret = super(Hacked_HttpAuthPolicy, self).login_required(request)
             for index, header in enumerate(ret.headerlist):
                 if header[0] == 'WWW-Authenticate':
@@ -39,6 +52,7 @@ def setup(config):
                     header[0] = 'X-WWW-Authenticate'
                     ret.headerlist[index] = tuple(header)
             return ret
+
     pyramid_httpauth.HttpAuthPolicy = Hacked_HttpAuthPolicy
 
     # Add routes for HTTP auth views.
