@@ -88,10 +88,13 @@ def login_view(request):
         * login_referrer (optional): The page to redirect to when logged in.
     """
 
+    ret = {'auth_kind': request.registry.settings.auth_kind}
+
     login_referrer = _login_referrer(request, request.params)
 
     if authenticated_userid(request):
-        return HTTPFound(location=login_referrer)
+        ret['login_url'] = login_referrer
+        return ret
 
     # Save the previous page.
     request.session['login_referrer'] = login_referrer
@@ -109,7 +112,8 @@ def login_view(request):
     login.request.nameIdPolicy.allowCreate = True
     login.buildAuthnRequestMsg()
 
-    return HTTPFound(location=login.msgUrl)
+    ret['login_url'] = login.msgUrl
+    return ret
 
 
 def login_metadata_view(request):
@@ -176,13 +180,10 @@ def login_success_view(request):
 
 
 def logout_view(request):
-    """Request params:
-        * login_referrer (optional): The page to redirect to when logged in.
-    """
-    login_referrer = _login_referrer(request, request.params)
+    """Just empty the session and let the client handle this."""
     request.session.clear()
-    headers = forget(request)
-    return HTTPFound(location=login_referrer, headers=headers)
+    request.response.headerlist.extend(forget(request))
+    return {'auth_kind': request.registry.settings.auth_kind}
 
 
 def setup(config):
@@ -217,10 +218,10 @@ def setup(config):
             http_cache=0,
             **kwargs
         )
-    add_view(login_view, route_name='saml2_login')
+    add_view(login_view, route_name='saml2_login', renderer='json')
     add_view(login_metadata_view, route_name='saml2_login_metadata')
     add_view(login_success_view, route_name='saml2_login_success')
-    add_view(logout_view, route_name='saml2_logout')
+    add_view(logout_view, route_name='saml2_logout', renderer='json')
 
     # The default 403 (forbidden) view produces HTML; change it to a JSON one.
     forbidden_view_config(renderer='json')(forbidden_view)

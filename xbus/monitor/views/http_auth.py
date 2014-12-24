@@ -1,3 +1,4 @@
+from pyramid.security import NO_PERMISSION_REQUIRED
 import pyramid_httpauth
 
 
@@ -9,6 +10,17 @@ def get_user_password(login):
     # TODO Implement.
 
     return 'test'
+
+
+def login_view(request):
+    """Nothing special for HTTP auth - let the client handle this."""
+    return {'auth_kind': request.registry.settings.auth_kind}
+
+
+def logout_view(request):
+    """Just empty the session and let the client handle this."""
+    request.session.clear()
+    return {'auth_kind': request.registry.settings.auth_kind}
 
 
 def setup(config):
@@ -28,3 +40,20 @@ def setup(config):
                     ret.headerlist[index] = tuple(header)
             return ret
     pyramid_httpauth.HttpAuthPolicy = Hacked_HttpAuthPolicy
+
+    # Add routes for HTTP auth views.
+    config.add_route('httpauth_login', '/login')
+    config.add_route('httpauth_logout', '/logout')
+
+    # Register HTTP auth views. Avoid using the "view_config" decorator as we
+    # don't want the views to be added when HTTP auth is disabled.
+    def add_view(view, **kwargs):
+        config.add_view(
+            view,
+            permission=NO_PERMISSION_REQUIRED,
+            http_cache=0,
+            renderer='json',
+            **kwargs
+        )
+    add_view(login_view, route_name='httpauth_login')
+    add_view(logout_view, route_name='httpauth_logout')
