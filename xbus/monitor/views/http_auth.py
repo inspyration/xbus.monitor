@@ -1,3 +1,4 @@
+from hashlib import sha1
 from pyramid.security import NO_PERMISSION_REQUIRED
 import pyramid_httpauth
 
@@ -19,7 +20,7 @@ def logout_view(request):
 def setup(config):
     """Setup HTTP auth - to be called when the app starts."""
 
-    class Hacked_HttpAuthPolicy(pyramid_httpauth.HttpAuthPolicy):
+    class Hacked_HttpBasicScheme(pyramid_httpauth.schemes.HttpBasicScheme):
         def authenticated_userid(self, request):
             """Override to change the password verifier (we don't store them as
             clear text).
@@ -27,17 +28,34 @@ def setup(config):
 
             login = self.unauthenticated_userid(request)
             password = self.get_password(request)
+            if not login or not password:
+                return None
+            password = password.encode('utf-8')
 
             db_session = DBSession()
 
+            # Ensure the user is in the DB and find its hashed password.
             user = db_session.query(User).filter(
                 User.user_name == login
             ).first()
             if not user:
                 return None
+            user_pass = user.password.encode('utf-8')
 
-            # TODO Does not work - use helpers from sbus.monitor.
-            return user.password == password
+            # Verify the provided password against the hashed one.
+            hashed_pass = sha1()
+            hashed_pass.update(password + user_pass[:40])
+            if user_pass[40:] != hashed_pass.hexdigest().encode('utf-8'):
+                return None
+
+            return user.user_name
+
+    class Hacked_HttpAuthPolicy(pyramid_httpauth.HttpAuthPolicy):
+        def __init__(self, *args, **kwargs):
+            """Override to sneak our custom HTTP basic verifier in."""
+
+            self._scheme_classes['basic'] = Hacked_HttpBasicScheme
+            super(Hacked_HttpAuthPolicy, self).__init__(*args, **kwargs)
 
         def login_required(self, request):
             """Rename the "WWW-Authenticate" header of 401 HTTP responses so
