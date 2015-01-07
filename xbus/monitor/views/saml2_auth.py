@@ -219,7 +219,8 @@ def setup(config):
             **kwargs
         )
     add_view(login_view, route_name='saml2_login', renderer='json')
-    add_view(login_metadata_view, route_name='saml2_login_metadata')
+    add_view(login_metadata_view, route_name='saml2_login_metadata',
+             renderer='string')
     add_view(login_success_view, route_name='saml2_login_success')
     add_view(logout_view, route_name='saml2_logout', renderer='json')
 
