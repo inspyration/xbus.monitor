@@ -1,3 +1,4 @@
+import base64
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.response import Response
 
