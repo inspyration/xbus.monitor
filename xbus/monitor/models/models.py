@@ -151,10 +151,6 @@ Event._mapper = mapper(Event, event, properties={
     )
 })
 
-EventError._mapper = mapper(EventError, event_error, properties={
-    'event': relationship(Event)
-})
-
 EventType._mapper = mapper(EventType, event_type, properties={})
 
 EventNode._mapper = mapper(EventNode, event_node, properties={
@@ -167,6 +163,13 @@ EventNode._mapper = mapper(EventNode, event_node, properties={
         secondaryjoin=event_node.c.id == event_node_rel.c.child_id,
         backref=backref('parents', lazy='dynamic')
     )
+})
+
+EventError._mapper = mapper(EventError, event_error, properties={
+    'envelope': relationship(Envelope, backref='error_list'),
+    'event': relationship(Event),
+    'node': relationship(EventNode),
+    'role': relationship(Role),
 })
 
 EmissionProfile._mapper = mapper(
