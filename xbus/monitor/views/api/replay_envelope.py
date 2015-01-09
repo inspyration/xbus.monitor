@@ -21,7 +21,7 @@ def _coro_emitter(front_url, login, password, envelope_id, loop):
     token = yield from client.call.login(login, password)
     logs.append('Got connection token: %s' % token)
 
-    yield from client.call.replay_envelope(token)
+    yield from client.call.replay_envelope(token, envelope_id)
     logs.append('Request to replay the envelope %s sent' % envelope_id)
 
     yield from client.call.logout(token)
