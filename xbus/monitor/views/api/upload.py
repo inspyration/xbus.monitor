@@ -7,6 +7,12 @@ from pyramid.view import view_config
 
 @asyncio.coroutine
 def _coro_emitter(front_url, login, password, items, loop):
+    """The actual emission logic.
+
+    @return The envelope ID and logs.
+    @rtype (envelope-ID, log list) tuple.
+    """
+
     item_count = len(items)
 
     logs = []
@@ -44,7 +50,7 @@ def _coro_emitter(front_url, login, password, items, loop):
     client.close()
     logs.append('Done.')
 
-    return logs
+    return envelope_id, logs
 
 
 @view_config(
@@ -84,6 +90,6 @@ def upload(request):
     # Send our data via 0mq to the Xbus front-end.
     zmq_loop = aiozmq.ZmqEventLoopPolicy().new_event_loop()
     emitter = _coro_emitter(front_url, login, password, items, zmq_loop)
-    logs = zmq_loop.run_until_complete(emitter)
+    envelope_id, logs = zmq_loop.run_until_complete(emitter)
 
-    return {'logs': logs}
+    return {'envelope_id': envelope_id, 'logs': logs}
