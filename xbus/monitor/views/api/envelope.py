@@ -50,7 +50,12 @@ def envelope_create(request):
 @view_decorators.read(_MODEL)
 def envelope_read(request):
     record = get_record(request, _MODEL)
-    return record.as_dict()
+    ret = record.as_dict()
+
+    # Also include event errors.
+    ret['errors'] = [error.id for error in record.error_list]
+
+    return ret
 
 
 @view_decorators.update(_MODEL)
