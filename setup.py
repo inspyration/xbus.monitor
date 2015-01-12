@@ -8,21 +8,22 @@ with open(os.path.join(here, 'CHANGES.txt')) as f:
     CHANGES = f.read()
 
 requires = [
+    'msgpack-python',
+    'psycopg2',
     'pyramid',
     'pyramid_chameleon',
     'pyramid_debugtoolbar',
     'pyramid_httpauth',
     'pyramid_redis_sessions==1.0a1',
     'pyramid_tm',
-    'psycopg2',
+    'pyzmq',
     'redis==2.9.1',
     'six',
     'SQLAlchemy',
     'transaction',
     'waitress',
+    'xbus.broker'
     'zope.sqlalchemy',
-    'pyzmq',
-    'msgpack-python',
 ]
 
 setup(
