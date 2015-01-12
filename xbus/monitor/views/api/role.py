@@ -1,6 +1,7 @@
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.response import Response
 
+from xbus.broker.model.auth.helpers import gen_password
 from xbus.monitor.models.models import DBSession
 from xbus.monitor.models.models import Role
 
