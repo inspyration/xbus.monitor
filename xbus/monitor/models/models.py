@@ -17,6 +17,7 @@ from xbus.broker.model import emitter_profile_event_type_rel
 from xbus.broker.model import envelope
 from xbus.broker.model import event
 from xbus.broker.model import event_error
+from xbus.broker.model import event_error_tracking
 from xbus.broker.model import event_node
 from xbus.broker.model import event_node_rel
 from xbus.broker.model import event_type
@@ -89,6 +90,10 @@ class Event(BaseModel):
 
 
 class EventError(BaseModel):
+    pass
+
+
+class EventErrorTracking(BaseModel):
     pass
 
 
@@ -171,6 +176,13 @@ EventError._mapper = mapper(EventError, event_error, properties={
     'node': relationship(EventNode),
     'role': relationship(Role),
 })
+
+EventErrorTracking._mapper = mapper(
+    EventErrorTracking, event_error_tracking, properties={
+        'event_error': relationship(EventError, backref='tracking_list'),
+        'user': relationship(User),
+    }
+)
 
 EmissionProfile._mapper = mapper(
     EmissionProfile, emission_profile, properties={

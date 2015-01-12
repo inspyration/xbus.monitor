@@ -9,11 +9,13 @@ from xbus.monitor.models.models import EmitterProfile
 from xbus.monitor.models.models import Envelope
 from xbus.monitor.models.models import Event
 from xbus.monitor.models.models import EventError
+from xbus.monitor.models.models import EventErrorTracking
 from xbus.monitor.models.models import EventNode
 from xbus.monitor.models.models import EventType
 from xbus.monitor.models.models import InputDescriptor
 from xbus.monitor.models.models import Role
 from xbus.monitor.models.models import Service
+from xbus.monitor.models.models import User
 from xbus.monitor.resources.root import RootFactory
 
 
@@ -87,6 +89,10 @@ class RecordFactory_event_error(_GenericRecordFactory):
     sqla_model = EventError
 
 
+class RecordFactory_event_error_tracking(_GenericRecordFactory):
+    sqla_model = EventErrorTracking
+
+
 class RecordFactory_event_node(_GenericRecordFactory):
     sqla_model = EventNode
 
@@ -105,3 +111,7 @@ class RecordFactory_role(_GenericRecordFactory):
 
 class RecordFactory_service(_GenericRecordFactory):
     sqla_model = Service
+
+
+class RecordFactory_user(_GenericRecordFactory):
+    sqla_model = User

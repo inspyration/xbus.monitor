@@ -16,4 +16,9 @@ def event_error_list(request):
 @view_decorators.read(_MODEL)
 def event_error_read(request):
     record = get_record(request, _MODEL)
-    return record.as_dict()
+    ret = record.as_dict()
+
+    # Also include tracking items.
+    ret['tracking'] = [tracker.id for tracker in record.tracking_list]
+
+    return ret
