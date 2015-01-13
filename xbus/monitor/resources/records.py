@@ -21,11 +21,13 @@ from xbus.monitor.resources.root import RootFactory
 
 class _GenericRecordFactory(RootFactory):
     """Factory for individual records; provides:
+    - id_attribute: name of the "ID" attribute.
     - record_id.
     - record: sqlalchemy representation of the record.
     - sqla_model: sqlalchemy class.
     """
 
+    id_attribute = 'id'  # May be overridden by derived classes.
     sqla_model = None  # To be overridden by derived classes.
 
     # Give any authenticated user full access to all models by default, unless
@@ -40,7 +42,9 @@ class _GenericRecordFactory(RootFactory):
     def __init__(self, request):
         self.record_id = self._get_record_id(request)
         query = DBSession.query(self.sqla_model)
-        query = query.filter(self.sqla_model.id == self.record_id)
+        query = query.filter(
+            getattr(self.sqla_model, self.id_attribute) == self.record_id
+        )
         self.record = query.first()
 
     @staticmethod
@@ -114,4 +118,5 @@ class RecordFactory_service(_GenericRecordFactory):
 
 
 class RecordFactory_user(_GenericRecordFactory):
+    id_attribute = 'user_id'
     sqla_model = User
