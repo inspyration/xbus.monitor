@@ -22,7 +22,7 @@ requires = [
     'SQLAlchemy',
     'transaction',
     'waitress',
-    'xbus.broker'
+    'xbus.broker',
     'zope.sqlalchemy',
 ]
 
