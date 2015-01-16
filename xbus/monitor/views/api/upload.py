@@ -1,56 +1,14 @@
 import aiozmq
-from aiozmq import rpc
-import asyncio
+import io
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.view import view_config
+from tempfile import NamedTemporaryFile
+from xbus.file_emitter import FileEmitter
+from xbus.file_emitter import FileEmitterException
 
-
-@asyncio.coroutine
-def _coro_emitter(front_url, login, password, items, loop):
-    """The actual emission logic.
-
-    @return The envelope ID and logs.
-    @rtype (envelope-ID, log list) tuple.
-    """
-
-    item_count = len(items)
-
-    logs = []
-
-    logs.append('Establishing RPC connection...')
-    client = yield from rpc.connect_rpc(connect=front_url, loop=loop)
-    logs.append('RPC connection OK')
-    token = yield from client.call.login(login, password)
-    logs.append('Got connection token: %s' % token)
-
-    envelope_id = yield from client.call.start_envelope(token)
-    logs.append('Started envelope: %s' % envelope_id)
-
-    event_id = yield from client.call.start_event(
-        token, envelope_id, 'test_event', 0
-    )
-    logs.append('Started event: %s' % event_id)
-
-    logs.append('Sending %d items...' % item_count)
-    for item in items:
-        yield from client.call.send_item(
-            token, envelope_id, event_id, item
-        )
-    logs.append('Sent %d items' % item_count)
-
-    yield from client.call.end_event(token, envelope_id, event_id)
-    logs.append('Ended event: %s' % event_id)
-
-    yield from client.call.end_envelope(token, envelope_id)
-    logs.append('Ended envelope: %s' % envelope_id)
-
-    yield from client.call.logout(token)
-    logs.append('Logged out; terminating')
-
-    client.close()
-    logs.append('Done.')
-
-    return envelope_id, logs
+from xbus.monitor.auth import get_logged_user_id
+from xbus.monitor.models.models import DBSession
+from xbus.monitor.models.models import EmissionProfile
 
 
 @view_config(
@@ -63,23 +21,34 @@ def upload(request):
     """View to handle file uploads. They are sent to Xbus.
     """
 
+    # Check request parameters.
     emission_profile_id = request.params.get('emission_profile_id')
-    if not emission_profile_id:
+    file = request.params.get('file')
+    if not emission_profile_id or file is None:
         raise HTTPBadRequest(
             json_body={'error': 'No emission profile selected'},
         )
 
-    # TODO Ensure execution of the emission profile is authorized for the
-    # current user.
+    # Get emission profile data from the database.
+    emission_profile = DBSession.query(EmissionProfile).filter(
+        EmissionProfile.id == emission_profile_id
+    ).first()
+    if not emission_profile:
+        raise HTTPBadRequest(
+            json_body={'error': 'Invalid emission profile'},
+        )
+
+    # Ensure execution of the emission profile is authorized for the current
+    # user.
+    if emission_profile.owner_id != get_logged_user_id(request):
+        raise HTTPBadRequest(
+            json_body={'error': 'Emission profile unauthorized'},
+        )
+
+    # Fetch the input descriptor.
+    descriptor = emission_profile.input_descriptor.descriptor.decode('utf-8')
 
     # TODO Use the selected encoding when decoding the file.
-
-    # Split the file by line.
-    file = request.params.get('file')
-    items = [
-        item.encode('utf-8')
-        for item in file.value.decode('utf-8').splitlines()
-    ]
 
     # TODO config params
     # The login & password must exist in the "emitter" database table.
@@ -87,9 +56,30 @@ def upload(request):
     login = 'upload_emitter'
     password = 'test'
 
-    # Send our data via 0mq to the Xbus front-end.
-    zmq_loop = aiozmq.ZmqEventLoopPolicy().new_event_loop()
-    emitter = _coro_emitter(front_url, login, password, items, zmq_loop)
-    envelope_id, logs = zmq_loop.run_until_complete(emitter)
+    # Use a temporary file to store the upload.
+    # TODO Use a pipe or some such?
+    with NamedTemporaryFile(prefix='xbus-monitor-upload-') as f_temp:
+        while True:
+            buf = file.file.read(io.DEFAULT_BUFFER_SIZE)
+            f_temp.write(buf)
+            if len(buf) == 0:
+                break
 
-    return {'envelope_id': envelope_id, 'logs': logs}
+        # Open the file as text.
+        f_temp.flush()
+        f_temp_text = open(f_temp.name, 'r', newline='')
+
+        # Send our data via 0mq to the Xbus front-end.
+        zmq_loop = aiozmq.ZmqEventLoopPolicy().new_event_loop()
+        try:
+            emitter = FileEmitter(
+                front_url, login, password, [descriptor], loop=zmq_loop
+            )
+            zmq_loop.run_until_complete(emitter.login())
+            envelope_id = zmq_loop.run_until_complete(
+                emitter.send_files([(f_temp_text, None)])
+            )
+        except FileEmitterException as e:
+            raise HTTPBadRequest(json_body={'error': str(e)})
+
+    return {'envelope_id': envelope_id}

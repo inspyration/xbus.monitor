@@ -23,6 +23,7 @@ requires = [
     'transaction',
     'waitress',
     'xbus.broker',
+    'xbus.file_emitter',
     'zope.sqlalchemy',
 ]
 
