@@ -97,7 +97,7 @@ redis.sessions.url = redis://localhost:6379/0
 # redis.sessions.deserialize = cPickle.loads
 
 # you can specify a prefix to be used with session keys in redis
-redis.sessions.prefix = pyramid_openerp_demo.session.
+redis.sessions.prefix = xbus_monitor.session.
 
 # or you can supply your own UID generator callable for session keys
 # redis.sessions.id_generator = niftyuid
