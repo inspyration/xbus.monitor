@@ -4,19 +4,42 @@ from xbus.monitor.models.models import DBSession
 
 
 def get_list(sqla_model, params=None, query=None):
-    """Helper to retrieve a record list, encoded with JSON."""
+    """Helper to retrieve a record list, encoded with JSON.
+
+    :param params: Query string to filter results.
+
+    :param query: Custom SQLAlchemy query (one will be initialized using the
+    "sqla_model" parameter otherwise).
+
+    :return: [pagination-information, record-list].
+    :rtype: 2-element list (0: dict, 1: list of dicts).
+    """
+
     if query is None:
         query = DBSession.query(sqla_model)
+
+    # Filter settings.
+    filters = {}
+    filter_keys = (
+        'page', 'per_page', 'total_pages', 'total_entries', 'sort_by', 'order',
+    )
+
+    # See whether results have to be filtered.
     if params is None:
         params = {}
-    for param_op, value in params.iteritems():
+    for key, value in params.iteritems():
 
-        if len(param_op) >= 3 and param_op[-3] == ':':
-            param, op = param_op[:-3], param_op[-2:]
+        # Special filter keys.
+        if key in filter_keys:
+            filters[key] = value
+            continue
+
+        if len(key) >= 3 and key[-3] == ':':
+            param, op = key[:-3], key[-2:]
         elif value:
-            param, op = param_op, 'eq'
+            param, op = key, 'eq'
         else:
-            param, op = param_op, 'is'
+            param, op = key, 'is'
 
         if hasattr(sqla_model, 'c'):
             col = sqla_model.c.get(param, None)
@@ -43,8 +66,25 @@ def get_list(sqla_model, params=None, query=None):
         elif op == 'le':
             query = query.filter(col <= (value if value else None))
 
+    total_count = query.count()
+
+    # Apply pagination settings.
+    per_page = filters.get('per_page')
+    if per_page:
+        per_page = int(per_page)
+        query = query.limit(per_page)
+        page = filters.get('page')
+        if page:
+            page = int(page)
+            query = query.offset(page * per_page)
+
+    # TODO Sorting.
+
     records = query.all()
-    return [record.as_dict() for record in records]
+    return [
+        {'total_entries': total_count},
+        [record.as_dict() for record in records]
+    ]
 
 
 def get_record(request, model):

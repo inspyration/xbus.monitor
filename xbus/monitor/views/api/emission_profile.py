@@ -36,11 +36,12 @@ def emission_profile_list(request):
     # Only list the user's own emission profiles. Others can still be read (so
     # they can be accessed if they are referenced elsewhere) but they just
     # won't be listed here.
-    return [
+    ret = get_list(EmissionProfile, request.GET)
+    return [ret[0], [
         item
-        for item in get_list(EmissionProfile, request.GET)
+        for item in ret[1]
         if item['owner_id'] == get_logged_user_id(request)
-    ]
+    ]]
 
 
 @view_decorators.create(_MODEL)
