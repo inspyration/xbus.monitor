@@ -69,6 +69,7 @@ Install without Docker
 [Deprecated]::
   $ $VENV/bin/initialize_monitor_db development.ini
 
+
 Configure
 ---------
 
@@ -79,6 +80,7 @@ Only use en_US or fr_FR for now in pyramid.default_locale_name
 Localization:
 
     Edit the "pyramid.default_locale_name" variable.
+
 
 Run
 ---
@@ -91,11 +93,13 @@ Without Docker::
 
     $VENV/bin/pserve development.ini
 
+
 Run tests
 ---------
 ::
 
     nosetests
+
 
 Generate the translation template
 ---------------------------------
@@ -104,9 +108,18 @@ Generate the translation template
     pip install Babel lingua
     python setup.py extract_messages
 
+
 Other translation tasks
 -----------------------
 See <http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/i18n.html>.
 ::
 
     python setup.py [init_catalog -l en_US] [update_catalog] [compile_catalog]
+
+
+Thanks
+------
+
+xbus.monitor uses the following external projects; thanks a lot to their respective authors:
+- pyramid <http://docs.pylonsproject.org/projects/pyramid/en/latest/>
+- pyramid_httpauth <https://github.com/tarzanjw/pyramid_httpauth>
