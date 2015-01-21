@@ -1,3 +1,4 @@
+import ast
 from pyramid.httpexceptions import HTTPNotFound
 
 from xbus.monitor.models.models import DBSession
@@ -48,7 +49,10 @@ def get_list(sqla_model, params=None, query=None):
         if col is None:
             continue
 
-        if op == 'is':
+        if op == 'in':
+            value = ast.literal_eval(value)
+            query = query.filter(col.in_(value))
+        elif op == 'is':
             if value.lower() == 'true':
                 query = query.filter(col != None)
             else:
