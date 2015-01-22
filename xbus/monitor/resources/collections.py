@@ -8,6 +8,7 @@ from xbus.monitor.models.models import Event
 from xbus.monitor.models.models import EventError
 from xbus.monitor.models.models import EventErrorTracking
 from xbus.monitor.models.models import EventNode
+from xbus.monitor.models.models import EventTracking
 from xbus.monitor.models.models import EventType
 from xbus.monitor.models.models import InputDescriptor
 from xbus.monitor.models.models import Role
@@ -65,6 +66,10 @@ class CollectionFactory_event_error_tracking(_GenericCollectionFactory):
 class CollectionFactory_event_node(_GenericCollectionFactory):
     sqla_model = EventNode
 
+
+class CollectionFactory_event_tracking(_GenericCollectionFactory):
+    sqla_model = EventTracking
+""
 
 class CollectionFactory_event_type(_GenericCollectionFactory):
     sqla_model = EventType

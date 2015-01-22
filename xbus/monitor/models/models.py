@@ -20,6 +20,7 @@ from xbus.broker.model import event_error
 from xbus.broker.model import event_error_tracking
 from xbus.broker.model import event_node
 from xbus.broker.model import event_node_rel
+from xbus.broker.model import event_tracking
 from xbus.broker.model import event_type
 from xbus.broker.model import input_descriptor
 from xbus.broker.model import role
@@ -94,6 +95,10 @@ class EventError(BaseModel):
 
 
 class EventErrorTracking(BaseModel):
+    pass
+
+
+class EventTracking(BaseModel):
     pass
 
 
@@ -180,6 +185,13 @@ EventError._mapper = mapper(EventError, event_error, properties={
 EventErrorTracking._mapper = mapper(
     EventErrorTracking, event_error_tracking, properties={
         'event_error': relationship(EventError, backref='tracking_list'),
+        'user': relationship(User),
+    }
+)
+
+EventTracking._mapper = mapper(
+    EventTracking, event_tracking, properties={
+        'event': relationship(Event, backref='tracking_list'),
         'user': relationship(User),
     }
 )
