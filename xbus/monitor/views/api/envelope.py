@@ -52,8 +52,11 @@ def envelope_read(request):
     record = get_record(request, _MODEL)
     ret = record.as_dict()
 
-    # Also include event errors.
-    ret['errors'] = [error.id for error in record.error_list]
+    # Also include events and errors.
+    ret.update({
+        'errors': [error.id for error in record.error_list],
+        'events': [event.id for event in record.event_list],
+    })
 
     return ret
 

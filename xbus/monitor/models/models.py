@@ -152,7 +152,7 @@ Event._mapper = mapper(Event, event, properties={
     'type': relationship(EventType),
     'emitter': relationship(Emitter),
     'envelope': relationship(
-        Envelope, backref=backref('events', lazy="dynamic")
+        Envelope, backref=backref('event_list', lazy="dynamic")
     )
 })
 
