@@ -158,7 +158,8 @@ Event._mapper = mapper(Event, event, properties={
     'emitter': relationship(Emitter),
     'envelope': relationship(
         Envelope, backref=backref('event_list', lazy="dynamic")
-    )
+    ),
+    'responsible': relationship(User),
 })
 
 EventType._mapper = mapper(EventType, event_type, properties={})
@@ -179,6 +180,7 @@ EventError._mapper = mapper(EventError, event_error, properties={
     'envelope': relationship(Envelope, backref='error_list'),
     'event': relationship(Event),
     'node': relationship(EventNode),
+    'responsible': relationship(User),
     'role': relationship(Role),
 })
 

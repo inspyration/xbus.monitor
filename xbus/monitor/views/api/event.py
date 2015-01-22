@@ -18,7 +18,14 @@ def event_read(request):
     record = get_record(request, _MODEL)
     ret = record.as_dict()
 
-    # Also include tracking items.
-    ret['tracking'] = [tracker.id for tracker in record.tracking_list]
+    ret.update({
+        # Also include tracking items.
+        'tracking': [tracker.id for tracker in record.tracking_list],
+
+        # Also include user names for convenience.
+        'user_name': (
+            record.responsible.display_name if record.responsible else ''
+        ),
+    })
 
     return ret

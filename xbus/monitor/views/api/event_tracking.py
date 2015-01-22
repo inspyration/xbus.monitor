@@ -43,13 +43,19 @@ def event_tracking_create(request):
 
     _update_record(request, record)
 
+    # The object this tracking item is for.
+    event = DBSession.query(Event).filter(
+        Event.id == record.event_id
+    ).first()
+
     new_state = getattr(record, 'new_state', None)
     if new_state:
         # Change the state of the event.
-        event = DBSession.query(Event).filter(
-            Event.id == record.event_id
-        ).first()
         event.state = new_state
+
+    if record.user_id != event.responsible_id:
+        # Update the responsible of the event.
+        event.responsible_id = record.user_id
 
     DBSession.add(record)
     DBSession.flush()

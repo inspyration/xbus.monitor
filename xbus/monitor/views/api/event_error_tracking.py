@@ -43,13 +43,19 @@ def event_error_tracking_create(request):
 
     _update_record(request, record)
 
+    # The object this tracking item is for.
+    event_error = DBSession.query(EventError).filter(
+        EventError.id == record.event_error_id
+    ).first()
+
     new_state = getattr(record, 'new_state', None)
     if new_state:
         # Change the state of the event error.
-        event_error = DBSession.query(EventError).filter(
-            EventError.id == record.event_error_id
-        ).first()
         event_error.state = new_state
+
+    if record.user_id != event_error.responsible_id:
+        # Update the responsible of the event error.
+        event_error.responsible_id = record.user_id
 
     DBSession.add(record)
     DBSession.flush()
