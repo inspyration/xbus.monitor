@@ -1,4 +1,4 @@
-import ast
+import json
 from pyramid.httpexceptions import HTTPNotFound
 
 from xbus.monitor.models.models import DBSession
@@ -50,7 +50,7 @@ def get_list(sqla_model, params=None, query=None):
             continue
 
         if op == 'in':
-            value = ast.literal_eval(value)
+            value = json.loads(value)
             query = query.filter(col.in_(value))
         elif op == 'is':
             if value.lower() == 'true':
