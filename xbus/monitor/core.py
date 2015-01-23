@@ -154,6 +154,7 @@ def main(global_config, **settings):
 
     # Other parts of the API.
 
+    config.add_route('consumer_list', API_PREFIX + 'consumer')
     config.add_route('replay_envelope', API_PREFIX + 'replay_envelope')
     config.add_route('upload', API_PREFIX + 'upload')
     config.add_route('xml_config', API_PREFIX + 'xml_config')
