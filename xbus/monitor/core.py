@@ -17,11 +17,13 @@ API_PREFIX = '/api/'
 
 # Where to find factories for collections of records.
 COLLECTION_FACTORY_LOC = (
-    'xbus.monitor.resources.collections.CollectionFactory_{model}'
+    'xbus.monitor.resources.monitor.collections.CollectionFactory_{model}'
 )
 
 # Where to find factories for individual records.
-RECORD_FACTORY_LOC = 'xbus.monitor.resources.records.RecordFactory_{model}'
+RECORD_FACTORY_LOC = (
+    'xbus.monitor.resources.monitor.records.RecordFactory_{model}'
+)
 
 
 def _add_api_routes(config, model):
