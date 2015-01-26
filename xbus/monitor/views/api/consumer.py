@@ -1,5 +1,7 @@
 from pyramid.view import view_config
 
+from xbus.monitor.consumers import get_consumers
+
 
 @view_config(
     route_name='consumer_list',
@@ -13,9 +15,5 @@ def consumer_list(request):
 
     # TODO Implement.
 
-    consumers = [
-        {'id': 'abcd', 'name': 'consumer with clearing', 'clearing': True},
-        {'id': 'efgh', 'name': 'consumer without clearing'},
-    ]
-
+    consumers = get_consumers()
     return [{'total_entries': len(consumers)}, consumers]
