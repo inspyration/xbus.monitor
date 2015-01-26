@@ -7,8 +7,8 @@ from xbus.file_emitter import FileEmitter
 from xbus.file_emitter import FileEmitterException
 
 from xbus.monitor.auth import get_logged_user_id
-from xbus.monitor.models.models import DBSession
-from xbus.monitor.models.models import EmissionProfile
+from xbus.monitor.models.monitor import DBSession
+from xbus.monitor.models.monitor import EmissionProfile
 
 
 @view_config(

@@ -1,8 +1,8 @@
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.response import Response
 
-from xbus.monitor.models.models import DBSession
-from xbus.monitor.models.models import Service
+from xbus.monitor.models.monitor import DBSession
+from xbus.monitor.models.monitor import Service
 
 from .util import get_list
 from .util import get_record

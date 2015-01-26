@@ -2,21 +2,21 @@ from pyramid.httpexceptions import HTTPBadRequest
 from pyramid import security
 
 from xbus.monitor.auth import user_principal
-from xbus.monitor.models.models import DBSession
-from xbus.monitor.models.models import EmissionProfile
-from xbus.monitor.models.models import Emitter
-from xbus.monitor.models.models import EmitterProfile
-from xbus.monitor.models.models import Envelope
-from xbus.monitor.models.models import Event
-from xbus.monitor.models.models import EventError
-from xbus.monitor.models.models import EventErrorTracking
-from xbus.monitor.models.models import EventNode
-from xbus.monitor.models.models import EventTracking
-from xbus.monitor.models.models import EventType
-from xbus.monitor.models.models import InputDescriptor
-from xbus.monitor.models.models import Role
-from xbus.monitor.models.models import Service
-from xbus.monitor.models.models import User
+from xbus.monitor.models.monitor import DBSession
+from xbus.monitor.models.monitor import EmissionProfile
+from xbus.monitor.models.monitor import Emitter
+from xbus.monitor.models.monitor import EmitterProfile
+from xbus.monitor.models.monitor import Envelope
+from xbus.monitor.models.monitor import Event
+from xbus.monitor.models.monitor import EventError
+from xbus.monitor.models.monitor import EventErrorTracking
+from xbus.monitor.models.monitor import EventNode
+from xbus.monitor.models.monitor import EventTracking
+from xbus.monitor.models.monitor import EventType
+from xbus.monitor.models.monitor import InputDescriptor
+from xbus.monitor.models.monitor import Role
+from xbus.monitor.models.monitor import Service
+from xbus.monitor.models.monitor import User
 from xbus.monitor.resources.root import RootFactory
 
 

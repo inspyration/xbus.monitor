@@ -4,8 +4,8 @@ from pyramid.httpexceptions import HTTPInternalServerError
 from pyramid.response import Response
 from pyramid.view import view_config
 
-from xbus.monitor.models.models import DBSession
-from xbus.monitor.models.models import EventType
+from xbus.monitor.models.monitor import DBSession
+from xbus.monitor.models.monitor import EventType
 
 from .util import get_list
 from .util import get_record

@@ -1,4 +1,4 @@
-from xbus.monitor.models.models import User
+from xbus.monitor.models.monitor import User
 
 from .util import get_list
 from .util import get_record

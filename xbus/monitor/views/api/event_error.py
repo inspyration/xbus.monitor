@@ -1,4 +1,4 @@
-from xbus.monitor.models.models import EventError
+from xbus.monitor.models.monitor import EventError
 
 from .util import get_list
 from .util import get_record

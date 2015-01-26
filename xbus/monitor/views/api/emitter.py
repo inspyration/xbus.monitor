@@ -2,8 +2,8 @@ from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.response import Response
 
 from xbus.broker.model.auth.helpers import gen_password
-from xbus.monitor.models.models import DBSession
-from xbus.monitor.models.models import Emitter
+from xbus.monitor.models.monitor import DBSession
+from xbus.monitor.models.monitor import Emitter
 
 from .util import get_list
 from .util import get_record

@@ -5,8 +5,8 @@
 import logging
 from pyramid import security
 
-from xbus.monitor.models.models import DBSession
-from xbus.monitor.models.models import User
+from xbus.monitor.models.monitor import DBSession
+from xbus.monitor.models.monitor import User
 
 
 log = logging.getLogger(__name__)

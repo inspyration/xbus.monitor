@@ -5,7 +5,7 @@ from pyramid_redis_sessions import session_factory_from_settings
 from sqlalchemy import engine_from_config
 
 from xbus.monitor.i18n import init_i18n
-from xbus.monitor.models.models import DBSession
+from xbus.monitor.models.monitor import DBSession
 from xbus.monitor.resources.root import RootFactory
 from xbus.monitor.views import http_auth
 from xbus.monitor.views import saml2_auth

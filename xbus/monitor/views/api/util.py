@@ -1,7 +1,7 @@
 import json
 from pyramid.httpexceptions import HTTPNotFound
 
-from xbus.monitor.models.models import DBSession
+from xbus.monitor.models.monitor import DBSession
 
 
 def get_list(sqla_model, params=None, query=None):

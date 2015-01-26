@@ -2,8 +2,8 @@ from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.response import Response
 
 from xbus.monitor.auth import get_logged_user_id
-from xbus.monitor.models.models import DBSession
-from xbus.monitor.models.models import EmissionProfile
+from xbus.monitor.models.monitor import DBSession
+from xbus.monitor.models.monitor import EmissionProfile
 
 from .util import get_list
 from .util import get_record

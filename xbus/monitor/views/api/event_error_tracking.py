@@ -1,9 +1,9 @@
 from pyramid.httpexceptions import HTTPBadRequest
 
 from xbus.monitor.auth import get_logged_user_id
-from xbus.monitor.models.models import DBSession
-from xbus.monitor.models.models import EventError
-from xbus.monitor.models.models import EventErrorTracking
+from xbus.monitor.models.monitor import DBSession
+from xbus.monitor.models.monitor import EventError
+from xbus.monitor.models.monitor import EventErrorTracking
 
 from .util import get_list
 from .util import get_record

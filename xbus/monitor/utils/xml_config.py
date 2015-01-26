@@ -1,12 +1,12 @@
 from xml.etree import ElementTree
 
-from ..models.models import DBSession
-from ..models.models import Role
-from ..models.models import Service
-from ..models.models import Emitter
-from ..models.models import EventType
-from ..models.models import EmitterProfile
-from ..models.models import EventNode
+from xbus.monitor.models.monitor import DBSession
+from xbus.monitor.models.monitor import Role
+from xbus.monitor.models.monitor import Service
+from xbus.monitor.models.monitor import Emitter
+from xbus.monitor.models.monitor import EventType
+from xbus.monitor.models.monitor import EmitterProfile
+from xbus.monitor.models.monitor import EventNode
 
 
 def load_config(raw_xml):

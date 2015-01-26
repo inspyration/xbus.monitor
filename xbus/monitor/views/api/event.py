@@ -1,4 +1,4 @@
-from xbus.monitor.models.models import Event
+from xbus.monitor.models.monitor import Event
 
 from .util import get_list
 from .util import get_record

@@ -1,3 +1,6 @@
+"""SQLAlchemy description of the database model used by the Xbus monitor.
+"""
+
 import base64
 import datetime
 from uuid import UUID as base_UUID

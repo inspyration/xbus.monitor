@@ -2,8 +2,8 @@ import hashlib
 from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.view import view_config
 
-from xbus.monitor.models.models import DBSession
-from xbus.monitor.models.models import User
+from xbus.monitor.models.monitor import DBSession
+from xbus.monitor.models.monitor import User
 
 
 @view_config(

@@ -3,7 +3,7 @@ import transaction
 
 from pyramid import testing
 
-from ..models.models import DBSession
+from xbus.monitor.models.monitor import DBSession
 
 
 class TestMyViewSuccessCondition(unittest.TestCase):
@@ -11,7 +11,7 @@ class TestMyViewSuccessCondition(unittest.TestCase):
         self.config = testing.setUp()
         from sqlalchemy import create_engine
         engine = create_engine('sqlite://')
-        from ..models.models import (
+        from xbus.monitor.models.monitor import (
             BaseModel,
             MyModel,
             )
@@ -38,7 +38,7 @@ class TestMyViewFailureCondition(unittest.TestCase):
         self.config = testing.setUp()
         from sqlalchemy import create_engine
         engine = create_engine('sqlite://')
-        from ..models.models import (
+        from xbus.monitor.models.monitor import (
             BaseModel,
             MyModel,
             )

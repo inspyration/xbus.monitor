@@ -2,8 +2,8 @@ import base64
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.response import Response
 
-from xbus.monitor.models.models import DBSession
-from xbus.monitor.models.models import InputDescriptor
+from xbus.monitor.models.monitor import DBSession
+from xbus.monitor.models.monitor import InputDescriptor
 
 from .util import get_list
 from .util import get_record
