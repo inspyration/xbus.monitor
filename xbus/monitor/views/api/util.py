@@ -1,10 +1,8 @@
 import json
 from pyramid.httpexceptions import HTTPNotFound
 
-from xbus.monitor.models.monitor import DBSession
 
-
-def get_list(sqla_model, params=None, query=None):
+def get_list(sqla_model, params=None, query=None, sqla_session=None):
     """Helper to retrieve a record list, encoded with JSON.
 
     :param params: Query string to filter results.
@@ -12,12 +10,18 @@ def get_list(sqla_model, params=None, query=None):
     :param query: Custom SQLAlchemy query (one will be initialized using the
     "sqla_model" parameter otherwise).
 
+    :param sqla_session: SQLAlchemy session object to use to run queries.
+    Default: xbus.monitor.models.monitor.DBSession.
+
     :return: [pagination-information, record-list].
     :rtype: 2-element list (0: dict, 1: list of dicts).
     """
 
     if query is None:
-        query = DBSession.query(sqla_model)
+        if sqla_session is None:
+            from xbus.monitor.models.monitor import DBSession
+            sqla_session = DBSession
+        query = sqla_session.query(sqla_model)
 
     # Filter settings.
     filters = {}
