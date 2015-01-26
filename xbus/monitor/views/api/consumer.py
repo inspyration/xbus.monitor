@@ -1,6 +1,7 @@
 from pyramid.view import view_config
 
 from xbus.monitor.consumers import get_consumers
+from xbus.monitor.consumers import refresh_consumers
 
 
 @view_config(
@@ -13,7 +14,7 @@ def consumer_list(request):
     """List consumers. They are not stored in the database.
     """
 
-    # TODO Implement.
+    refresh_consumers()
 
     consumers = get_consumers()
     return [{'total_entries': len(consumers)}, consumers]
