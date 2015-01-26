@@ -69,7 +69,7 @@ class CollectionFactory_event_node(_GenericCollectionFactory):
 
 class CollectionFactory_event_tracking(_GenericCollectionFactory):
     sqla_model = EventTracking
-""
+
 
 class CollectionFactory_event_type(_GenericCollectionFactory):
     sqla_model = EventType
