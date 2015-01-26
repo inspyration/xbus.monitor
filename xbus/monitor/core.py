@@ -17,63 +17,65 @@ API_PREFIX = '/api/'
 
 # Where to find factories for collections of records.
 COLLECTION_FACTORY_LOC = (
-    'xbus.monitor.resources.monitor.collections.CollectionFactory_{model}'
+    'xbus.monitor.resources.{model}.collections.CollectionFactory_{collection}'
 )
 
 # Where to find factories for individual records.
 RECORD_FACTORY_LOC = (
-    'xbus.monitor.resources.monitor.records.RecordFactory_{model}'
+    'xbus.monitor.resources.{model}.records.RecordFactory_{collection}'
 )
 
 
-def _add_api_routes(config, model):
-    """Register routes for a model to be exposed through the API. The relevant
-    views then have to be implemented by referencing these routes.
+def _add_api_routes(config, model, collection):
+    """Register routes for a collection to be exposed through the API. The
+    relevant views then have to be implemented by referencing these routes.
+
+    :param model: Name of the database model where the collection is described.
+    :type model: String.
+
+    :param collection: Name of the collection.
+    :type collection: String.
     """
 
+    settings = {
+        'api_prefix': API_PREFIX,
+        'collection': collection,
+        'model': model,
+    }
+
     config.add_route(
-        '{model}_list'.format(model=model),
-        '{api_prefix}{model}'.format(
-            api_prefix=API_PREFIX, model=model,
-        ),
+        '{collection}_list'.format(**settings),
+        '{api_prefix}{collection}'.format(**settings),
         request_method='GET',
-        factory=COLLECTION_FACTORY_LOC.format(model=model),
+        factory=COLLECTION_FACTORY_LOC.format(**settings),
     )
     config.add_route(
-        '{model}_create'.format(model=model),
-        '{api_prefix}{model}'.format(
-            api_prefix=API_PREFIX, model=model,
-        ),
+        '{collection}_create'.format(**settings),
+        '{api_prefix}{collection}'.format(**settings),
         request_method='POST',
-        factory=COLLECTION_FACTORY_LOC.format(model=model),
+        factory=COLLECTION_FACTORY_LOC.format(**settings),
     )
     config.add_route(
-        model,
-        '{api_prefix}{model}/{{id}}'.format(api_prefix=API_PREFIX, model=model),
-        factory=RECORD_FACTORY_LOC.format(model=model),
+        collection,
+        '{api_prefix}{collection}/{{id}}'.format(**settings),
+        factory=RECORD_FACTORY_LOC.format(**settings),
     )
     config.add_route(
-        '{model}_rel_list'.format(model=model),
-        '{api_prefix}{model}/{{id}}/{{rel}}'.format(
-            api_prefix=API_PREFIX, model=model,
-        ),
+        '{collection}_rel_list'.format(**settings),
+        '{api_prefix}{collection}/{{id}}/{{rel}}'.format(**settings),
         request_method='GET',
-        factory=RECORD_FACTORY_LOC.format(model=model),
+        factory=RECORD_FACTORY_LOC.format(**settings),
     )
     config.add_route(
-        '{model}_rel_create'.format(model=model),
-        '{api_prefix}{model}/{{id}}/{{rel}}'.format(
-            api_prefix=API_PREFIX, model=model,
-        ),
+        '{collection}_rel_create'.format(**settings),
+        '{api_prefix}{collection}/{{id}}/{{rel}}'.format(**settings),
         request_method='POST',
-        factory=RECORD_FACTORY_LOC.format(model=model),
+        factory=RECORD_FACTORY_LOC.format(**settings),
     )
     config.add_route(
-        '{model}_rel'.format(model=model),
-        '{api_prefix}{model}/{{id}}/{{rel}}/{{rid}}'.format(
-            api_prefix=API_PREFIX, model=model,
-        ),
-        factory=RECORD_FACTORY_LOC.format(model=model),
+        '{collection}_rel'.format(**settings),
+        '{api_prefix}{collection}/{{id}}/{{rel}}/{{rid}}'.format(**settings),
+        factory=RECORD_FACTORY_LOC.format(**settings),
     )
 
 
@@ -130,7 +132,9 @@ def main(global_config, **settings):
     config.add_route('xml_config_ui', '/xml_config')
     config.add_route(
         'event_type_graph', API_PREFIX + 'event_type/{id}/graph',
-        factory=RECORD_FACTORY_LOC.format(model='event_type'),
+        factory=RECORD_FACTORY_LOC.format(
+            model='monitor', collection='event_type',
+        ),
     )
 
     # Other routes.
@@ -139,20 +143,25 @@ def main(global_config, **settings):
 
     # REST API exposed with JSON.
 
-    _add_api_routes(config, 'emission_profile')
-    _add_api_routes(config, 'emitter')
-    _add_api_routes(config, 'emitter_profile')
-    _add_api_routes(config, 'envelope')
-    _add_api_routes(config, 'event')
-    _add_api_routes(config, 'event_error')
-    _add_api_routes(config, 'event_error_tracking')
-    _add_api_routes(config, 'event_node')
-    _add_api_routes(config, 'event_tracking')
-    _add_api_routes(config, 'event_type')
-    _add_api_routes(config, 'input_descriptor')
-    _add_api_routes(config, 'role')
-    _add_api_routes(config, 'service')
-    _add_api_routes(config, 'user')
+    _add_api_routes(config, 'data_clearing', 'cl_item')
+    _add_api_routes(config, 'data_clearing', 'cl_item_column')
+    _add_api_routes(config, 'data_clearing', 'cl_item_join')
+    _add_api_routes(config, 'data_clearing', 'cl_item_type')
+
+    _add_api_routes(config, 'monitor', 'emission_profile')
+    _add_api_routes(config, 'monitor', 'emitter')
+    _add_api_routes(config, 'monitor', 'emitter_profile')
+    _add_api_routes(config, 'monitor', 'envelope')
+    _add_api_routes(config, 'monitor', 'event')
+    _add_api_routes(config, 'monitor', 'event_error')
+    _add_api_routes(config, 'monitor', 'event_error_tracking')
+    _add_api_routes(config, 'monitor', 'event_node')
+    _add_api_routes(config, 'monitor', 'event_tracking')
+    _add_api_routes(config, 'monitor', 'event_type')
+    _add_api_routes(config, 'monitor', 'input_descriptor')
+    _add_api_routes(config, 'monitor', 'role')
+    _add_api_routes(config, 'monitor', 'service')
+    _add_api_routes(config, 'monitor', 'user')
 
     # Other parts of the API.
 
