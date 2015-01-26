@@ -47,6 +47,15 @@ class update(view_config):
         }))
 
 
+class patch(view_config):
+    def __init__(self, model, **settings):
+        super(patch, self).__init__(**_merge_settings(settings, {
+            'permission': 'update',
+            'request_method': 'PATCH',
+            'route_name': model,
+        }))
+
+
 class delete(view_config):
     def __init__(self, model, **settings):
         super(delete, self).__init__(**_merge_settings(settings, {
