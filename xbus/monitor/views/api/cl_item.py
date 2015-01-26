@@ -1,6 +1,6 @@
 from pyramid.httpexceptions import HTTPNotImplemented
 
-from xbus.monitor.models.data_clearing import DBSession
+from xbus.monitor.models.data_clearing import get_session
 from xbus.monitor.models.data_clearing import Item
 
 from .util import get_record
@@ -22,7 +22,7 @@ def cl_item_list(request):
         ret['type_name'] = record.type.display_name
         return ret
 
-    records = DBSession.query(Item).all()
+    records = get_session(request).query(Item).all()
     return [wrap_record(record) for record in records]
 
 

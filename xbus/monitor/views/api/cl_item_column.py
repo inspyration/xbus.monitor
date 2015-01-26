@@ -1,7 +1,7 @@
 from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.response import Response
 
-from xbus.monitor.models.data_clearing import DBSession
+from xbus.monitor.models.data_clearing import get_session
 from xbus.monitor.models.data_clearing import ItemColumn
 
 from .util import get_record
@@ -58,7 +58,7 @@ def cl_item_column_list(request):
         ret['type_name'] = record.type.display_name
         return ret
 
-    records = DBSession.query(ItemColumn).all()
+    records = get_session(request).query(ItemColumn).all()
     return [wrap_record(record) for record in records]
 
 
@@ -69,9 +69,11 @@ def cl_item_column_create(request):
 
     _update_record(request, record)
 
-    DBSession.add(record)
-    DBSession.flush()
-    DBSession.refresh(record)
+    session = get_session(request)
+
+    session.add(record)
+    session.flush()
+    session.refresh(record)
 
     return record.as_dict()
 
@@ -92,7 +94,6 @@ def cl_item_column_update(request):
 @view_decorators.delete(_MODEL)
 def cl_item_column_delete(request):
     record = get_record(request, _MODEL)
-    DBSession.delete(record)
+    get_session(request).delete(record)
 
     return Response(status_int=204, json_body={})
-

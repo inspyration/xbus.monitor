@@ -2,7 +2,7 @@ from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.response import Response
 
-from xbus.monitor.models.data_clearing import DBSession
+from xbus.monitor.models.data_clearing import get_session
 from xbus.monitor.models.data_clearing import ItemType
 
 from .util import get_list
@@ -36,7 +36,7 @@ def _update_record(request, record):
 
 @view_decorators.list(_MODEL)
 def cl_item_type_list(request):
-    return get_list(ItemType, request.GET, sqla_session=DBSession)
+    return get_list(ItemType, request.GET, sqla_session=get_session(request))
 
 
 @view_decorators.create(_MODEL)
@@ -46,9 +46,11 @@ def cl_item_type_create(request):
 
     _update_record(request, record)
 
-    DBSession.add(record)
-    DBSession.flush()
-    DBSession.refresh(record)
+    session = get_session(request)
+
+    session.add(record)
+    session.flush()
+    session.refresh(record)
 
     return record.as_dict()
 
@@ -69,7 +71,7 @@ def cl_item_type_update(request):
 @view_decorators.delete(_MODEL)
 def item_type_delete(request):
     record = get_record(request, _MODEL)
-    DBSession.delete(record)
+    get_session(request).delete(record)
 
     return Response(status_int=204, json_body={})
 
@@ -88,7 +90,7 @@ def cl_item_type_rel_add(request):
             },
         )
 
-    query = DBSession.query(rel.mapper)
+    query = get_session(request).query(rel.mapper)
     added_record = query.get(rid)
     if added_record is None:
         raise HTTPNotFound(
@@ -117,7 +119,7 @@ def cl_item_type_rel_delete(request):
             },
         )
 
-    query = DBSession.query(rel.mapper)
+    query = get_session(request).query(rel.mapper)
     removed_record = query.get(rid)
     if removed_record is None:
         raise HTTPNotFound(
@@ -146,7 +148,9 @@ def cl_item_type_rel_list(request):
             },
         )
 
-    return get_list(rel.mapper, request.GET, rel_list, sqla_session=DBSession)
+    return get_list(
+        rel.mapper, request.GET, rel_list, sqla_session=get_session(request)
+    )
 
 
 @view_decorators.rel_create(_MODEL)

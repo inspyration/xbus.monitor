@@ -1,4 +1,4 @@
-from xbus.monitor.models.data_clearing import DBSession
+from xbus.monitor.models.data_clearing import get_session
 from xbus.monitor.models.data_clearing import Item
 from xbus.monitor.models.data_clearing import ItemColumn
 from xbus.monitor.models.data_clearing import ItemJoin
@@ -8,7 +8,10 @@ from xbus.monitor.resources.records import GenericRecordFactory
 
 class _BaseRecordFactory(GenericRecordFactory):
     """Base class for record factories in this module."""
-    sqla_session = DBSession
+
+    @property
+    def sqla_session(self, request):
+        return get_session(request)
 
 
 class RecordFactory_cl_item(_BaseRecordFactory):

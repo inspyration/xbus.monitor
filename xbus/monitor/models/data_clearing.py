@@ -17,15 +17,18 @@ from sqlalchemy import Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import backref
 from sqlalchemy.orm import relationship
-from sqlalchemy.orm import scoped_session
-from sqlalchemy.orm import sessionmaker
 from uuid import UUID as base_UUID
-from zope.sqlalchemy import ZopeTransactionExtension
 
+from xbus.monitor.consumers import get_consumer_clearing_session
 from xbus.monitor.models.types import UUID
 
 
-DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
+def get_session(request):
+    """Get the SQLAlchemy session object bound to the data clearing database
+    specified by a "cl_consumer" request parameter referencing an Xbus consumer
+    ID.
+    """
+    return get_consumer_clearing_session(request.params.get('cl_consumer'))
 
 
 OPTYPES = [
