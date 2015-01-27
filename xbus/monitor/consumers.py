@@ -6,6 +6,7 @@ In particular, save those providing data clearing and the database they use.
 import aiozmq
 from aiozmq import rpc
 import asyncio
+from copy import copy
 import logging
 from pyramid.httpexceptions import HTTPBadRequest
 from sqlalchemy import create_engine
@@ -38,7 +39,13 @@ _consumer_clearing_sessions = {}
 
 
 def get_consumers():
-    return _consumers
+    """Get the cached list of consumers. To retrieve an up-to-date list, call
+    "refresh_consumers" first.
+
+    :rtype: List of dicts.
+    """
+
+    return copy(_consumers)
 
 
 def get_consumer_clearing_session(consumer_id):
@@ -115,7 +122,7 @@ def refresh_consumers():
     roles = session.query(Role).filter(Role.id.in_(role_ids))
     _consumers = [
         {
-            'clearing': True,  # TODO Implement.
+            'clearing': i % 2 == 0,  # TODO Implement.
             'id': 'consumer-%d' % i,  # TODO Implement.
             'name': role.service.name,
         }
@@ -130,5 +137,5 @@ def refresh_consumers():
     _consumer_clearing_sessions = {
         'consumer-%d' % i: _make_session(data_clearing_db_url)
         for i, role in enumerate(roles)
-        if data_clearing_db_url
+        if data_clearing_db_url and i % 2 == 0
     }

@@ -11,10 +11,21 @@ from xbus.monitor.consumers import refresh_consumers
     http_cache=0,
 )
 def consumer_list(request):
-    """List consumers. They are not stored in the database.
+    """List consumers. They are not stored in the database; we instead issue a
+    request to Xbus to retrieve them.
     """
 
-    refresh_consumers()
+    # Optional parameters.
+    clearing = request.params.get('clearing')
 
+    refresh_consumers()
     consumers = get_consumers()
+
+    if clearing:
+        consumers = [
+            consumer
+            for consumer in consumers
+            if consumer['clearing']
+        ]
+
     return [{'total_entries': len(consumers)}, consumers]
