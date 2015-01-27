@@ -13,7 +13,8 @@ from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from zope.sqlalchemy import ZopeTransactionExtension
 
-# TODO Implement.
+
+log = logging.getLogger(__name__)
 
 
 def _make_session(db_url):
@@ -74,20 +75,20 @@ def _request_consumers(front_url, login, password, loop):
     @rtype List of dicts.
     """
 
-    logging.debug('Establishing RPC connection...')
+    log.debug('Establishing RPC connection...')
     client = yield from rpc.connect_rpc(connect=front_url, loop=loop)
-    logging.debug('RPC connection OK')
+    log.debug('RPC connection OK')
     token = yield from client.call.login(login, password)
-    logging.debug('Got connection token: %s' % token)
+    log.debug('Got connection token: %s' % token)
 
     consumers = yield from client.call.get_consumers(token)
-    logging.debug('Request to refresh consumers sent')
+    log.debug('Request to refresh consumers sent')
 
     yield from client.call.logout(token)
-    logging.debug('Logged out; terminating')
+    log.debug('Logged out; terminating')
 
     client.close()
-    logging.debug('Done.')
+    log.debug('Done.')
 
     return consumers
 
