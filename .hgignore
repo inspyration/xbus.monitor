@@ -20,6 +20,8 @@ dist/*
 build/*
 development.ini
 production.ini
+etc/development.ini
+etc/production.ini
 devdata.db
 *.egg-info/*
 .idea

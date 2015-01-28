@@ -76,7 +76,7 @@ Clone this project and install it::
 
 Install and setup xbus.broker (follow its README file for instructions).
 
-Create a configuration file based on production.ini.sample and edit it.
+Create a configuration file based on etc/production-example.ini and edit it.
 
 Run the monitor::
 
