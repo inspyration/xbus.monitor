@@ -1,15 +1,18 @@
-xbus.monitor README
-===================
+xbus.monitor
+============
 
-This module is new generation of open source tool for Enterprise
-Application Integration (EAI).
-Xbus offers services with high added value and for interpreting and
-transforming activities by events.
-The solution consists of a flexible middleware that connects all internal
-and external systems.
-An instance manages the interactions between controlled and optimized all systems.
+This package provides tools to monitor and administer Xbus.
 
-You can also find a presentation at http://bit.ly/1AYtQa6
+TODO Link to Xbus.
+
+Note: this package provides a REST API but no GUI; separate packages implement
+it.
+
+Current packages providing an interface to xbus.monitor:
+
+- xbus_monitor_js <https://bitbucket.org/xcg/xbus_monitor_js>: Single-page
+  JavaScript Backbone application that communicates with xbus.monitor via its
+  REST API.
 
 
 Install with Docker and Fig
@@ -60,20 +63,28 @@ Start Xbus::
 Install without Docker
 ----------------------
 
-::
+Set up a virtualenv::
+    $ mkvirtualenv xbus
 
-  $ cd <directory containing this file>
-  $ $VENV/bin/python setup.py develop
-  $ $VENV/bin/setup_xbusbroker
+Clone xbus.broker and install it::
+    $ hg clone ssh://hg@bitbucket.org/xcg/xbus.broker
+    $ pip install xbus.broker
 
-[Deprecated]::
-  $ $VENV/bin/initialize_monitor_db development.ini
+Clone this project and install it::
+    $ hg clone https://bitbucket.org/xcg/xbus.monitor
+    $ pip install xbus.monitor
+
+Install and setup xbus.broker (follow its README file for instructions).
+
+Create a configuration file based on production.ini.sample and edit it.
+
+Run the monitor::
+
+  $ $VENV/bin/pserve path-to-config-file
 
 
-Configure
----------
-
-Copy production-sample.ini to development.ini and edit it.
+Configuration details
+---------------------
 
 Only use en_US or fr_FR for now in pyramid.default_locale_name
 
@@ -91,7 +102,7 @@ With Docker::
 
 Without Docker::
 
-    $VENV/bin/pserve development.ini
+    $VENV/bin/pserve path-to-config-file
 
 
 Run tests
