@@ -69,7 +69,7 @@ def cl_item_type_update(request):
 
 
 @view_decorators.delete(_MODEL)
-def item_type_delete(request):
+def cl_item_type_delete(request):
     record = get_record(request, _MODEL)
     get_session(request).delete(record)
 
