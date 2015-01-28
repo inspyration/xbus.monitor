@@ -48,11 +48,9 @@ def replay_envelope(request):
             json_body={'error': 'No envelope selected'},
         )
 
-    # TODO config params
-    # The login & password must exist in the "emitter" database table.
-    front_url = 'tcp://127.0.0.1:1984'
-    login = 'upload_emitter'
-    password = 'test'
+    front_url = request.registry.settings['xbus.broker.front.url']
+    login = request.registry.settings['xbus.broker.front.login']
+    password = request.registry.settings['xbus.broker.front.password']
 
     # Send our data via 0mq to the Xbus front-end.
     zmq_loop = aiozmq.ZmqEventLoopPolicy().new_event_loop()

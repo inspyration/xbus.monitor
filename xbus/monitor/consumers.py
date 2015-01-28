@@ -93,7 +93,7 @@ def _request_consumers(front_url, login, password, loop):
     return consumers
 
 
-def refresh_consumers():
+def refresh_consumers(request):
     """Ask Xbus for a fresh new list of Xbus consumers.
     """
 
@@ -101,11 +101,9 @@ def refresh_consumers():
     global _consumers
     global _consumer_clearing_sessions
 
-    # TODO config params
-    # The login & password must exist in the "emitter" database table.
-    front_url = 'tcp://127.0.0.1:1984'
-    login = 'upload_emitter'
-    password = 'test'
+    front_url = request.registry.settings['xbus.broker.front.url']
+    login = request.registry.settings['xbus.broker.front.login']
+    password = request.registry.settings['xbus.broker.front.password']
 
     # Send our request via 0mq to the Xbus front-end.
     zmq_loop = aiozmq.ZmqEventLoopPolicy().new_event_loop()

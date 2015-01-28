@@ -50,11 +50,9 @@ def upload(request):
 
     # TODO Use the selected encoding when decoding the file.
 
-    # TODO config params
-    # The login & password must exist in the "emitter" database table.
-    front_url = 'tcp://127.0.0.1:1984'
-    login = 'upload_emitter'
-    password = 'test'
+    front_url = request.registry.settings['xbus.broker.front.url']
+    login = request.registry.settings['xbus.broker.front.login']
+    password = request.registry.settings['xbus.broker.front.password']
 
     # Use a temporary file to store the upload.
     # TODO Use a pipe or some such?

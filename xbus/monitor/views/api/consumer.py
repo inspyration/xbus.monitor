@@ -18,7 +18,7 @@ def consumer_list(request):
     # Optional parameters.
     clearing = request.params.get('clearing')
 
-    refresh_consumers()
+    refresh_consumers(request)
     consumers = get_consumers()
 
     if clearing:
