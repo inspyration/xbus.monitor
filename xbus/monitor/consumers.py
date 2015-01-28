@@ -12,10 +12,8 @@ from pyramid.httpexceptions import HTTPBadRequest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
+import uuid
 from zope.sqlalchemy import ZopeTransactionExtension
-
-from xbus.monitor.models.monitor import DBSession
-from xbus.monitor.models.monitor import Role
 
 
 log = logging.getLogger(__name__)
@@ -74,8 +72,7 @@ def get_consumer_clearing_session(consumer_id):
 def _request_consumers(front_url, login, password, loop):
     """Ask Xbus for the list of consumers.
 
-    @return Xbus consumers.
-    @rtype List of dicts.
+    :return: List of 2-element tuples (metadata dict, feature dict).
     """
 
     log.debug('Establishing RPC connection...')
@@ -113,29 +110,27 @@ def refresh_consumers():
     # Send our request via 0mq to the Xbus front-end.
     zmq_loop = aiozmq.ZmqEventLoopPolicy().new_event_loop()
     emitter = _request_consumers(front_url, login, password, zmq_loop)
-    role_ids = zmq_loop.run_until_complete(emitter)
+    consumer_data = zmq_loop.run_until_complete(emitter)
 
-    # TODO Use the db to get info about roles? or just save role IDs?
-    # TODO How to fetch data clearing information?
+    # consumer_data: List of 2-element tuples (metadata dict, feature dict).
+    # feature dict: {feature name: feature data}
+    # data clearing feature data: 2-element tuple (feature support, DB URL).
 
-    session = DBSession()
-    roles = session.query(Role).filter(Role.id.in_(role_ids))
+    # Fill the consumer cache.
     _consumers = [
         {
-            'clearing': i % 2 == 0,  # TODO Implement.
-            'id': 'consumer-%d' % i,  # TODO Implement.
-            'name': role.service.name,
+            'clearing': bool(consumer_info[1]['clearing'][0]),
+            'id': uuid.uuid4().hex,  # Just make one on-the-fly.
+            'name': consumer_info[0]['name'],
         }
-        for i, role in enumerate(roles)
+        for consumer_info in consumer_data
     ]
 
-    # Refresh the list of consumers with data clearing cache.
-    # TODO Implement.
-    data_clearing_db_url = (
-        'postgresql://xbus:xbus@localhost:5432/xbus_clearinghouse'
-    )
+    # Refresh the cache of consumers with data clearing.
     _consumer_clearing_sessions = {
-        'consumer-%d' % i: _make_session(data_clearing_db_url)
-        for i, role in enumerate(roles)
-        if data_clearing_db_url and i % 2 == 0
+        _consumers[consumer_index]['id']: (
+            _make_session(consumer_info[1]['clearing'][1])
+        )
+        for consumer_index, consumer_info in enumerate(consumer_data)
+        if consumer_info[1]['clearing'][0]
     }
