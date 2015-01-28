@@ -1,5 +1,6 @@
 from pyramid import security
 
+from xbus.monitor.models.data_clearing import EventType
 from xbus.monitor.models.data_clearing import Item
 from xbus.monitor.models.data_clearing import ItemColumn
 from xbus.monitor.models.data_clearing import ItemJoin
@@ -23,6 +24,10 @@ class _GenericCollectionFactory(RootFactory):
         (security.Allow, security.Authenticated, 'update'),
         (security.Allow, security.Authenticated, 'delete'),
     ]
+
+
+class CollectionFactory_cl_event_type(_GenericCollectionFactory):
+    sqla_model = EventType
 
 
 class CollectionFactory_cl_item(_GenericCollectionFactory):

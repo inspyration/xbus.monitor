@@ -69,6 +69,19 @@ Base = declarative_base()
 Base.as_dict = as_dict
 
 
+class EventType(Base):
+
+    __tablename__ = 'event_type'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(length=64), nullable=False, index=True, unique=True)
+
+    item_types = relationship(
+        'ItemType', lazy='dynamic', secondary='event_type_item_type_rel',
+        backref=backref('event_types', lazy='dynamic')
+    )
+
+
 class ItemType(Base):
 
     __tablename__ = 'item_type'
@@ -167,3 +180,14 @@ class Item(Base):
     type = relationship('ItemType', backref=backref('items', lazy='dynamic'))
 
     Index('idx_type_dest_id_batch', 'type_id', 'dest_id', 'batch')
+
+
+class EventTypeItemTypeRel(Base):
+
+    __tablename__ = 'event_type_item_type_rel'
+
+    event_type_fkey = ForeignKey('event_type.id', ondelete='CASCADE')
+    item_type_fkey = ForeignKey('item_type.id', ondelete='CASCADE')
+
+    event_type_id = Column(Integer, event_type_fkey, primary_key=True)
+    item_type_id = Column(Integer, item_type_fkey, primary_key=True)

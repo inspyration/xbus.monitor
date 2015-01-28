@@ -143,6 +143,7 @@ def main(global_config, **settings):
 
     # REST API exposed with JSON.
 
+    _add_api_routes(config, 'data_clearing', 'cl_event_type')
     _add_api_routes(config, 'data_clearing', 'cl_item')
     _add_api_routes(config, 'data_clearing', 'cl_item_column')
     _add_api_routes(config, 'data_clearing', 'cl_item_join')
