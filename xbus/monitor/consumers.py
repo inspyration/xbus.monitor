@@ -1,6 +1,7 @@
 """Deal with Xbus consumers.
 
-In particular, save those providing data clearing and the database they use.
+In particular, save whether they provide data clearing and the database they
+use.
 """
 
 import aiozmq
