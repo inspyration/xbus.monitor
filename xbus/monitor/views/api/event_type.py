@@ -209,7 +209,7 @@ def event_type_graph(request):
                 ret = False
         ref = 'A' + new_ref if ret else new_ref
 
-    list_res = [dict(ref=key, **val) for key, val in res.iteritems()]
+    list_res = [dict(ref=key, **val) for key, val in res.items()]
     list_res.sort(key=lambda self: self['depth'])
     return list_res
 

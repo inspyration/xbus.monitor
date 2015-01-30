@@ -32,7 +32,7 @@ def get_list(sqla_model, params=None, query=None, sqla_session=None):
     # See whether results have to be filtered.
     if params is None:
         params = {}
-    for key, value in params.iteritems():
+    for key, value in params.items():
 
         # Special filter keys.
         if key in filter_keys:
