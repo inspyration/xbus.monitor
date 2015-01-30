@@ -4,6 +4,7 @@ from pyramid.response import Response
 from xbus.monitor.models.data_clearing import get_session
 from xbus.monitor.models.data_clearing import ItemColumn
 
+from .util import get_list
 from .util import get_record
 from . import view_decorators
 
@@ -49,17 +50,20 @@ def _update_record(request, record):
 @view_decorators.list(_MODEL)
 def cl_item_column_list(request):
 
-    # TODO Use util.get_list when clients represent relationship better (for
-    # now, we just include the data they are going to need in the result list).
+    # TODO Remove the custom record wrapper when clients represent
+    # relationships better (for now, we just include the data they are going
+    # to need in the result list).
 
-    def wrap_record(record):
+    def record_wrapper(record):
         """Include type names."""
         ret = record.as_dict()
         ret['type_name'] = record.type.display_name
         return ret
 
-    records = get_session(request).query(ItemColumn).all()
-    return [wrap_record(record) for record in records]
+    return get_list(
+        ItemColumn, request.GET, sqla_session=get_session(request),
+        record_wrapper=record_wrapper,
+    )
 
 
 @view_decorators.create(_MODEL)

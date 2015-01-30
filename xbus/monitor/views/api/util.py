@@ -2,7 +2,10 @@ import json
 from pyramid.httpexceptions import HTTPNotFound
 
 
-def get_list(sqla_model, params=None, query=None, sqla_session=None):
+def get_list(
+    sqla_model, params=None, query=None, sqla_session=None,
+    record_wrapper=None
+):
     """Helper to retrieve a record list, encoded with JSON.
 
     :param params: Query string to filter results.
@@ -12,6 +15,9 @@ def get_list(sqla_model, params=None, query=None, sqla_session=None):
 
     :param sqla_session: SQLAlchemy session object to use to run queries.
     Default: xbus.monitor.models.monitor.DBSession.
+
+    :param record_wrapper: Function to dict-ify SQLAlchemy records. Defaults to
+    "record.as_dict()".
 
     :return: [pagination-information, record-list].
     :rtype: 2-element list (0: dict, 1: list of dicts).
@@ -88,10 +94,13 @@ def get_list(sqla_model, params=None, query=None, sqla_session=None):
 
     # TODO Sorting.
 
+    if record_wrapper is None:
+        record_wrapper = lambda record: record.as_dict()
+
     records = query.all()
     return [
         {'total_entries': total_count},
-        [record.as_dict() for record in records]
+        [record_wrapper(record) for record in records]
     ]
 
 
