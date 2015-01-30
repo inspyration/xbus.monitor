@@ -90,7 +90,7 @@ def get_list(
         page = filters.get('page')
         if page:
             page = int(page)
-            query = query.offset(page * per_page)
+            query = query.offset((page - 1) * per_page)
 
     # TODO Sorting.
 
