@@ -10,7 +10,6 @@ from xbus.monitor.resources.records import GenericRecordFactory
 class _BaseRecordFactory(GenericRecordFactory):
     """Base class for record factories in this module."""
 
-    @property
     def sqla_session(self, request):
         return get_session(request)
 

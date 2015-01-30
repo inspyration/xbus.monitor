@@ -21,7 +21,9 @@ from xbus.monitor.resources.records import GenericRecordFactory
 
 class _BaseRecordFactory(GenericRecordFactory):
     """Base class for record factories in this module."""
-    sqla_session = DBSession
+
+    def sqla_session(self, request):
+        return DBSession
 
 
 class RecordFactory_emission_profile(_BaseRecordFactory):

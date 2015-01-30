@@ -15,7 +15,6 @@ class GenericRecordFactory(RootFactory):
 
     id_attribute = 'id'  # May be overridden by derived classes.
     sqla_model = None  # To be overridden by derived classes.
-    sqla_session = None  # To be overridden by derived classes.
 
     # Give any authenticated user full access to all models by default, unless
     # the ACL is specialized in the derived class.
@@ -28,11 +27,17 @@ class GenericRecordFactory(RootFactory):
 
     def __init__(self, request):
         self.record_id = self._get_record_id(request)
-        query = self.sqla_session.query(self.sqla_model)
+        query = self.sqla_session(request).query(self.sqla_model)
         query = query.filter(
             getattr(self.sqla_model, self.id_attribute) == self.record_id
         )
         self.record = query.first()
+
+    def sqla_session(self, request):
+        """To be implemented by derived classes.
+        :rtype: SQLAlchemy session object.
+        """
+        raise NotImplementedError
 
     @staticmethod
     def _get_record_id(request):
