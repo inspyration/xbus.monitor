@@ -75,11 +75,15 @@ def cl_item_delete(request):
 
 @view_decorators.patch(_MODEL)
 def cl_item_patch(request):
+    """Send a request, via Xbus, to the consumer providing data clearing, to
+    ask for the item to be "cleared" and for information about the item.
+    """
 
-    # TODO Send an event to Xbus asking to patch the item.
-
-    record = get_record(request, _MODEL)
-    return record.as_dict()
+    return _send_item_request(request, {
+        'action': 'clear_item',
+        'item_id': request.context.record_id,
+        'values': request.json_body,
+    })
 
 
 def _ensure_item_clearing_event_type(request):
