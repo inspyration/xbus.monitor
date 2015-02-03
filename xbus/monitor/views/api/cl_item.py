@@ -57,19 +57,10 @@ def cl_item_read(request):
     information about the item.
     """
 
-    _ensure_item_clearing_event_type(request)
-
-    # The request to send to the Xbus consumer.
-    data = {'item_id': request.context.record_id, 'type': 'get_details'}
-
-    front_url = request.registry.settings['xbus.broker.front.url']
-    login = request.registry.settings['xbus.broker.front.login']
-    password = request.registry.settings['xbus.broker.front.password']
-
-    # Send our request via 0mq to the Xbus front-end.
-    zmq_loop = aiozmq.ZmqEventLoopPolicy().new_event_loop()
-    future = _send_item_request(front_url, login, password, data, zmq_loop)
-    return zmq_loop.run_until_complete(future)
+    return _send_item_request(request, {
+        'action': 'get_item_details',
+        'item_id': request.context.record_id,
+    })
 
 
 @view_decorators.update(_MODEL)
@@ -113,8 +104,26 @@ def _ensure_item_clearing_event_type(request):
         transaction.commit()
 
 
+def _send_item_request(request, data):
+    """Send a data clearing item request to Xbus.
+    :param data: Data (of any type) to send to the Xbus consumer.
+    :return: The result of an "end_event" Xbus API call.
+    """
+
+    _ensure_item_clearing_event_type(request)
+
+    front_url = request.registry.settings['xbus.broker.front.url']
+    login = request.registry.settings['xbus.broker.front.login']
+    password = request.registry.settings['xbus.broker.front.password']
+
+    # Send our request via 0mq to the Xbus front-end.
+    zmq_loop = aiozmq.ZmqEventLoopPolicy().new_event_loop()
+    future = _send_item_request_(front_url, login, password, data, zmq_loop)
+    return zmq_loop.run_until_complete(future)
+
+
 @asyncio.coroutine
-def _send_item_request(front_url, login, password, data, loop):
+def _send_item_request_(front_url, login, password, data, loop):
     """Send a data clearing item request to Xbus.
     :param data: Data (of any type) to send to the Xbus consumer.
     :return: The result of an "end_event" Xbus API call.
